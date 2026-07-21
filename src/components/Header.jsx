@@ -64,27 +64,29 @@ export default function Header({ activeTab, setActiveTab, events }) {
 
   return (
     <header className="w-full">
+      {/* Top Stripe Gradient Line */}
+      <div className="h-1.5 w-full bg-gradient-to-r from-[#635bff] via-[#a855f7] to-[#00d4ff]" />
+
       {/* Top Header Banner */}
-      <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border-b-4 border-red-600 py-6 px-4 text-center shadow-2xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-red-600/5 bg-[radial-gradient(#dc2626_1px,transparent_1px)] [background-size:16px_16px] opacity-30"></div>
+      <div className="bg-gradient-to-r from-[#0a2540] via-[#1e1b4b] to-[#0f172a] border-b border-indigo-500/20 py-7 px-4 text-center shadow-2xl relative overflow-hidden">
         <div className="max-w-6xl mx-auto flex flex-col items-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-red-600/10 border border-red-600/40 text-red-500 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 font-athletic">
-            <Flame className="w-4 h-4 text-red-500 animate-pulse" /> 2026 CrossFit Games Official Edition
+          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
+            <Flame className="w-4 h-4 text-indigo-400 animate-pulse" /> 2026 CrossFit Games Official Edition
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-wider text-white font-athletic text-shadow-md">
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight stripe-gradient-text drop-shadow-sm">
             NoBeef Fantasy League 2026
           </h1>
-          <p className="text-zinc-400 font-semibold text-xs sm:text-sm mt-1 tracking-widest uppercase font-athletic">
+          <p className="text-slate-400 font-medium text-xs sm:text-sm mt-1.5 tracking-wider uppercase">
             Official Coach Dashboard • Live Leaderboard • RX+ Card Portal
           </p>
         </div>
       </div>
 
       {/* Countdown Timer Banner */}
-      <div className="max-w-4xl mx-auto px-4 -mt-4 mb-5 relative z-10">
-        <div className="bg-zinc-900/95 border-2 border-red-600/80 rounded-2xl p-3.5 text-center shadow-2xl backdrop-blur-md glow-red">
-          <div className="flex items-center justify-center gap-2 text-red-500 font-bold text-xs sm:text-sm uppercase tracking-wider font-athletic">
-            <Timer className="w-4 h-4 text-red-500" />
+      <div className="max-w-4xl mx-auto px-4 -mt-4 mb-6 relative z-10">
+        <div className="bg-[#0f172a]/95 border border-indigo-500/30 rounded-2xl p-4 text-center shadow-2xl backdrop-blur-xl glow-indigo">
+          <div className="flex items-center justify-center gap-2 text-indigo-400 font-semibold text-xs sm:text-sm uppercase tracking-wider">
+            <Timer className="w-4 h-4 text-indigo-400" />
             <span>{nextEventTitle}</span>
           </div>
           <div className={`text-2xl sm:text-4xl font-black font-mono mt-1 ${isCompleted ? 'text-emerald-400' : 'text-white'}`}>
@@ -93,9 +95,9 @@ export default function Header({ activeTab, setActiveTab, events }) {
         </div>
       </div>
 
-      {/* Desktop Navigation Bar (md and up) - Flex wrapped to prevent any clipping */}
+      {/* Desktop Navigation Bar (md and up) */}
       <div className="hidden md:block max-w-6xl mx-auto px-3 mb-6">
-        <nav className="flex flex-wrap items-center justify-center gap-2 p-2 rounded-2xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md">
+        <nav className="flex flex-wrap items-center justify-center gap-2 p-2 rounded-2xl bg-[#0f172a]/80 border border-slate-800 shadow-xl backdrop-blur-xl">
           {allNavItems.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -103,13 +105,13 @@ export default function Header({ activeTab, setActiveTab, events }) {
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs lg:text-sm transition-all duration-200 font-athletic uppercase tracking-wider ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs lg:text-sm transition-all duration-200 uppercase tracking-wider ${
                   isActive
-                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 scale-[1.02]'
-                    : 'bg-zinc-800/60 text-zinc-300 hover:bg-zinc-800 hover:text-white border border-zinc-700/40'
+                    ? 'bg-[#635bff] text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
+                    : 'bg-slate-800/40 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/40'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-red-500'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -121,15 +123,15 @@ export default function Header({ activeTab, setActiveTab, events }) {
       {isMobileMoreOpen && (
         <>
           <div
-            className="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+            className="md:hidden fixed inset-0 bg-[#0a2540]/80 backdrop-blur-md z-40 animate-in fade-in duration-200"
             onClick={() => setIsMobileMoreOpen(false)}
           />
-          <div className="md:hidden fixed bottom-16 left-3 right-3 z-50 bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl space-y-2 animate-in slide-in-from-bottom-3 duration-200">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5 px-1">
-              <span className="text-xs font-black uppercase tracking-wider text-red-500 font-athletic">Additional League Pages</span>
+          <div className="md:hidden fixed bottom-16 left-3 right-3 z-50 bg-[#0f172a] border border-indigo-500/30 rounded-2xl p-4 shadow-2xl space-y-2 animate-in slide-in-from-bottom-3 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 px-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Additional League Pages</span>
               <button
                 onClick={() => setIsMobileMoreOpen(false)}
-                className="text-zinc-400 hover:text-white p-1 rounded-lg bg-zinc-800"
+                className="text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -143,17 +145,17 @@ export default function Header({ activeTab, setActiveTab, events }) {
                   <button
                     key={item.id}
                     onClick={() => handleTabClick(item.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all font-athletic uppercase tracking-wider ${
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all uppercase tracking-wider ${
                       isActive
-                        ? 'bg-red-600 text-white shadow-md shadow-red-600/20'
-                        : 'bg-zinc-950 text-zinc-200 hover:bg-zinc-800 border border-zinc-800'
+                        ? 'bg-[#635bff] text-white shadow-md shadow-indigo-500/20'
+                        : 'bg-slate-950 text-slate-200 hover:bg-slate-800 border border-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-red-500'}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
                       <span>{item.label}</span>
                     </div>
-                    <ChevronRight className={`w-4 h-4 ${isActive ? 'text-white' : 'text-zinc-500'}`} />
+                    <ChevronRight className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                   </button>
                 );
               })}
@@ -163,7 +165,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
       )}
 
       {/* Single Mobile Sticky Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 border-t border-zinc-800 px-2 py-2 backdrop-blur-xl shadow-2xl">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a2540]/95 border-t border-slate-800 px-2 py-2 backdrop-blur-xl shadow-2xl">
         <div className="flex items-center justify-around">
           {primaryNavItems.map(item => {
             const Icon = item.icon;
@@ -173,26 +175,26 @@ export default function Header({ activeTab, setActiveTab, events }) {
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
                 className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all ${
-                  isActive ? 'text-red-500 font-bold bg-red-600/10 border border-red-600/20' : 'text-zinc-400 hover:text-zinc-200'
+                  isActive ? 'text-indigo-400 font-bold bg-indigo-500/10 border border-indigo-500/20' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-red-500' : 'text-zinc-400'}`} />
-                <span className="text-[10px] leading-tight font-bold font-athletic uppercase">{item.badge}</span>
+                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
+                <span className="text-[10px] leading-tight font-bold uppercase">{item.badge}</span>
               </button>
             );
           })}
 
-          {/* More Menu Trigger (Opens non-primary pages drawer) */}
+          {/* More Menu Trigger */}
           <button
             onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
             className={`flex flex-col items-center gap-0.5 py-1 px-2.5 rounded-xl transition-all ${
               isMoreActive || isMobileMoreOpen
-                ? 'text-red-500 font-bold bg-red-600/10 border border-red-600/20'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'text-indigo-400 font-bold bg-indigo-500/10 border border-indigo-500/20'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Menu className={`w-5 h-5 ${isMoreActive || isMobileMoreOpen ? 'text-red-500' : 'text-zinc-400'}`} />
-            <span className={`text-[10px] leading-tight font-bold font-athletic uppercase ${isMoreActive || isMobileMoreOpen ? 'text-red-500' : 'text-zinc-400'}`}>
+            <Menu className={`w-5 h-5 ${isMoreActive || isMobileMoreOpen ? 'text-indigo-400' : 'text-slate-400'}`} />
+            <span className={`text-[10px] leading-tight font-bold uppercase ${isMoreActive || isMobileMoreOpen ? 'text-indigo-400' : 'text-slate-400'}`}>
               More
             </span>
           </button>

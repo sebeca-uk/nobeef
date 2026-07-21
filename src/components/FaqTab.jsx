@@ -72,22 +72,22 @@ export default function FaqTab() {
   return (
     <div className="space-y-6 font-sans">
       {/* Header Banner */}
-      <div className="glass-card rounded-2xl p-6 border border-zinc-800">
+      <div className="glass-card rounded-2xl p-6 border border-indigo-500/20">
         <div className="flex items-center gap-3 mb-2">
-          <HelpCircle className="w-7 h-7 text-red-500" />
-          <h2 className="text-2xl sm:text-3xl font-black text-white font-athletic uppercase tracking-wider">
+          <HelpCircle className="w-7 h-7 text-indigo-400" />
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider">
             League Rules & Official FAQ
           </h2>
         </div>
-        <p className="text-xs sm:text-sm text-zinc-400 font-medium">
+        <p className="text-xs sm:text-sm text-slate-400 font-medium">
           Comprehensive guide to RX+ Power Cards, roster salary constraints, insurance policies, and scoring rules.
         </p>
       </div>
 
       {/* Power Card Detailed Rules Grid */}
-      <div className="glass-card rounded-2xl p-5 border border-zinc-800">
-        <h3 className="text-xl font-black text-white mb-4 font-athletic uppercase tracking-wider flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-red-500" />
+      <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
+        <h3 className="text-xl font-extrabold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-indigo-400" />
           <span>RX+ Power Card Rules & Specifications</span>
         </h3>
 
@@ -95,12 +95,12 @@ export default function FaqTab() {
           {powerCardRules.map((rule, i) => {
             const Icon = rule.icon;
             return (
-              <div key={i} className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 space-y-2">
-                <div className="flex items-center gap-2 text-red-500 font-black text-lg font-athletic uppercase">
-                  <Icon className="w-5 h-5 text-red-500 shrink-0" />
+              <div key={i} className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-2">
+                <div className="flex items-center gap-2 text-indigo-400 font-bold text-base uppercase">
+                  <Icon className="w-5 h-5 text-indigo-400 shrink-0" />
                   <span>{rule.title}</span>
                 </div>
-                <p className="text-xs sm:text-sm text-zinc-300 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
                   {rule.desc}
                 </p>
               </div>
@@ -110,9 +110,9 @@ export default function FaqTab() {
       </div>
 
       {/* Categorized FAQ Section */}
-      <div className="glass-card rounded-2xl p-5 border border-zinc-800 space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-800">
-          <h3 className="text-xl font-black text-white font-athletic uppercase tracking-wider">
+      <div className="glass-card rounded-2xl p-5 border border-indigo-500/20 space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-800">
+          <h3 className="text-xl font-extrabold text-white uppercase tracking-wider">
             Frequently Asked Questions
           </h3>
 
@@ -121,10 +121,10 @@ export default function FaqTab() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-athletic uppercase transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
                   activeCategory === cat
-                    ? 'bg-red-600 text-white shadow-md'
-                    : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                    ? 'bg-[#635bff] text-white shadow-md shadow-indigo-500/25'
+                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >
                 {cat}
@@ -140,27 +140,27 @@ export default function FaqTab() {
             return (
               <div
                 key={idx}
-                className="bg-zinc-900/80 border border-zinc-800 rounded-xl overflow-hidden transition-all"
+                className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden transition-all"
               >
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className="w-full p-4 text-left flex items-center justify-between gap-3 font-extrabold text-sm sm:text-base text-white font-athletic uppercase tracking-wide hover:bg-zinc-800/50"
+                  className="w-full p-4 text-left flex items-center justify-between gap-3 font-bold text-sm sm:text-base text-white uppercase tracking-wide hover:bg-slate-800/50"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-red-600/20 text-red-400 font-mono border border-red-500/30">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono border border-indigo-500/30">
                       {faq.cat}
                     </span>
                     <span>{faq.q}</span>
                   </span>
                   {isOpen ? (
-                    <ChevronUp className="w-4 h-4 text-red-500 shrink-0" />
+                    <ChevronUp className="w-4 h-4 text-indigo-400 shrink-0" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                 </button>
 
                 {isOpen && (
-                  <div className="p-4 pt-0 text-xs sm:text-sm text-zinc-300 font-medium border-t border-zinc-800/60 leading-relaxed bg-zinc-950/60">
+                  <div className="p-4 pt-0 text-xs sm:text-sm text-slate-300 font-medium border-t border-slate-800/60 leading-relaxed bg-slate-950/60">
                     {faq.a}
                   </div>
                 )}

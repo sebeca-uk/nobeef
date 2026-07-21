@@ -169,13 +169,13 @@ export default function LeaderboardTab({ events, cardSubmissions, scores, withdr
   return (
     <div className="space-y-8 font-sans">
       {/* Header Bar */}
-      <div className="glass-card rounded-2xl p-6 border border-zinc-800">
+      <div className="glass-card rounded-2xl p-6 border border-indigo-500/20">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white font-athletic uppercase tracking-wider">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider">
               Real-Time Fantasy Leaderboard
             </h2>
-            <p className="text-xs text-zinc-400 mt-1 font-medium">
+            <p className="text-xs text-slate-400 mt-1 font-medium">
               Click any coach card or row to expand squad details, score breakdowns & active Power Cards.
             </p>
           </div>
@@ -183,17 +183,17 @@ export default function LeaderboardTab({ events, cardSubmissions, scores, withdr
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 md:w-64">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search coach..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 transition font-medium"
+                className="w-full bg-[#0a2540] border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 transition font-medium"
               />
             </div>
 
-            <div className="flex items-center gap-2 bg-zinc-900 px-3.5 py-2 rounded-xl border border-zinc-800 text-xs text-zinc-300 font-athletic uppercase font-bold">
+            <div className="flex items-center gap-2 bg-[#0a2540] px-3.5 py-2 rounded-xl border border-slate-700 text-xs text-indigo-300 font-bold uppercase">
               <span>25 Coaches</span>
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function LeaderboardTab({ events, cardSubmissions, scores, withdr
       {top1 && top2 && top3 && !searchTerm && (
         <div className="pt-4 pb-2">
           <div className="text-center mb-6">
-            <span className="uppercase text-[11px] font-black tracking-widest text-red-500 bg-red-600/10 px-4 py-1.5 rounded-full border border-red-600/30 font-athletic">
+            <span className="uppercase text-[11px] font-bold tracking-widest text-indigo-300 bg-indigo-500/10 px-4 py-1.5 rounded-full border border-indigo-500/30">
               Current Podium Leaders
             </span>
           </div>

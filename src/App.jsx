@@ -112,21 +112,21 @@ export default function App() {
   // Front of Site Password Lock Screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden">
+      <div className="min-h-screen bg-[#0a2540] text-slate-100 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden">
         {/* Background glow accents */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-sky-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="max-w-md w-full glass-card rounded-3xl p-8 border border-slate-800 shadow-2xl relative z-10 text-center space-y-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/40 rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-lg glow-gold">
-            <Lock className="w-8 h-8" />
+        <div className="max-w-md w-full glass-card rounded-3xl p-8 border border-indigo-500/30 shadow-2xl relative z-10 text-center space-y-6">
+          <div className="w-16 h-16 bg-indigo-500/10 border border-indigo-500/40 rounded-2xl flex items-center justify-center mx-auto text-indigo-400 shadow-lg glow-indigo">
+            <Lock className="w-8 h-8 text-indigo-400" />
           </div>
 
           <div>
-            <span className="uppercase text-[10px] font-extrabold tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+            <span className="uppercase text-[10px] font-bold tracking-widest text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
               Private Fantasy Portal
             </span>
-            <h1 className="text-2xl font-black text-white mt-3 tracking-wide">
+            <h1 className="text-2xl font-black text-white mt-3 tracking-tight">
               NoBeef CrossFit Games Fantasy 2026
             </h1>
             <p className="text-xs text-slate-400 mt-2">
@@ -145,7 +145,7 @@ export default function App() {
                   if (authError) setAuthError(false);
                 }}
                 className={`w-full bg-slate-950 border ${
-                  authError ? 'border-rose-500 focus:border-rose-400' : 'border-slate-700/80 focus:border-amber-400'
+                  authError ? 'border-rose-500 focus:border-rose-400' : 'border-slate-700 focus:border-indigo-400'
                 } rounded-xl px-4 py-3.5 text-white text-center text-sm focus:outline-none transition shadow-inner font-mono tracking-wider`}
                 autoFocus
               />
@@ -159,14 +159,14 @@ export default function App() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-3.5 px-6 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
+              className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-3.5 px-6 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
             >
               <span>Enter League Portal</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="pt-4 border-t border-slate-900 text-[11px] text-slate-500 flex items-center justify-center gap-1">
+          <div className="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
             <span>Official NoBeef Fantasy League Portal</span>
           </div>
@@ -176,7 +176,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#0b0f19] text-slate-100 font-sans pb-24 md:pb-12">
+    <div className="min-h-screen flex flex-col justify-between bg-[#0a2540] text-slate-100 font-sans pb-24 md:pb-12">
       <div>
         <Header activeTab={activeTab} setActiveTab={setActiveTab} events={events} />
 
