@@ -42,7 +42,7 @@ export default function AdminTab({
     if (passwordInput === 'nobeef2026') {
       setIsAdminLoggedIn(true);
     } else {
-      alert('⛔ Incorrect Admin Password! (Default password is nobeef2026)');
+      alert('⛔ Incorrect Admin Password!');
     }
   };
 
@@ -128,7 +128,7 @@ export default function AdminTab({
           <div>
             <input
               type="password"
-              placeholder="Enter Admin Password (nobeef2026)"
+              placeholder="Enter Admin Password"
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-center text-sm focus:outline-none focus:border-amber-400 font-mono"
