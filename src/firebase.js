@@ -1,21 +1,31 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, doc, collection, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 import { SEED_EVENTS } from './data/seedData';
 
-// Fallback or environment Firebase configuration
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDummyKeyForLocalDevelopment",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "nobeef-fantasy-2026.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "nobeef-fantasy-2026",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "nobeef-fantasy-2026.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef123456"
-};
+let db = null;
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const db = getFirestore(app);
+// Safe Firebase initialization
+try {
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+  if (apiKey && apiKey !== "AIzaSyDummyKeyForLocalDevelopment") {
+    const firebaseConfig = {
+      apiKey: apiKey,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID
+    };
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    db = getFirestore(app);
+  }
+} catch (e) {
+  console.warn("Firebase initialization skipped (running in local storage mode):", e);
+}
 
-// Local Storage Fallback Engine for instant reactivity before live Firestore keys are attached
+export { db };
+
+// Local Storage Fallback Engine for instant reactivity & full functionality
 const STORAGE_KEYS = {
   EVENTS: 'nobeef_events_v1',
   CARDS: 'nobeef_cards_v1',
@@ -25,55 +35,99 @@ const STORAGE_KEYS = {
 };
 
 export const getLocalOrSeedEvents = () => {
-  const stored = localStorage.getItem(STORAGE_KEYS.EVENTS);
-  if (stored) {
-    try { return JSON.parse(stored); } catch (e) { console.error(e); }
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.EVENTS);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error("Failed to parse local events", e);
   }
   localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(SEED_EVENTS));
   return SEED_EVENTS;
 };
 
 export const saveLocalEvents = (events) => {
-  localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+  try {
+    localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+  } catch (e) {
+    console.error("Failed to save local events", e);
+  }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };
 
 export const getLocalCards = () => {
-  const stored = localStorage.getItem(STORAGE_KEYS.CARDS);
-  return stored ? JSON.parse(stored) : [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.CARDS);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Failed to parse local cards", e);
+    return [];
+  }
 };
 
 export const saveLocalCards = (cards) => {
-  localStorage.setItem(STORAGE_KEYS.CARDS, JSON.stringify(cards));
+  try {
+    localStorage.setItem(STORAGE_KEYS.CARDS, JSON.stringify(cards));
+  } catch (e) {
+    console.error("Failed to save local cards", e);
+  }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };
 
 export const getLocalScores = () => {
-  const stored = localStorage.getItem(STORAGE_KEYS.SCORES);
-  return stored ? JSON.parse(stored) : [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.SCORES);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Failed to parse local scores", e);
+    return [];
+  }
 };
 
 export const saveLocalScores = (scores) => {
-  localStorage.setItem(STORAGE_KEYS.SCORES, JSON.stringify(scores));
+  try {
+    localStorage.setItem(STORAGE_KEYS.SCORES, JSON.stringify(scores));
+  } catch (e) {
+    console.error("Failed to save local scores", e);
+  }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };
 
 export const getLocalWithdrawals = () => {
-  const stored = localStorage.getItem(STORAGE_KEYS.WITHDRAWALS);
-  return stored ? JSON.parse(stored) : [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.WITHDRAWALS);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Failed to parse local withdrawals", e);
+    return [];
+  }
 };
 
 export const saveLocalWithdrawals = (withdrawals) => {
-  localStorage.setItem(STORAGE_KEYS.WITHDRAWALS, JSON.stringify(withdrawals));
+  try {
+    localStorage.setItem(STORAGE_KEYS.WITHDRAWALS, JSON.stringify(withdrawals));
+  } catch (e) {
+    console.error("Failed to save local withdrawals", e);
+  }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };
 
 export const getLocalBonusPicks = () => {
-  const stored = localStorage.getItem(STORAGE_KEYS.BONUS_PICKS);
-  return stored ? JSON.parse(stored) : {};
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.BONUS_PICKS);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to parse local bonus picks", e);
+    return {};
+  }
 };
 
 export const saveLocalBonusPicks = (bonusPicks) => {
-  localStorage.setItem(STORAGE_KEYS.BONUS_PICKS, JSON.stringify(bonusPicks));
+  try {
+    localStorage.setItem(STORAGE_KEYS.BONUS_PICKS, JSON.stringify(bonusPicks));
+  } catch (e) {
+    console.error("Failed to save local bonus picks", e);
+  }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ATHLETES_DATA, LOCKED_TEAMS, COMPETITION_DAYS } from '../data/seedData';
-import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock } from 'lucide-react';
+import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList } from 'lucide-react';
 
 export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDeleteCard }) {
   const [selectedCoach, setSelectedCoach] = useState('');
