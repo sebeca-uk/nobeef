@@ -116,12 +116,12 @@ export default function AdminTab({
 
   if (!isAdminLoggedIn) {
     return (
-      <div className="max-w-md mx-auto my-12 glass-card rounded-2xl p-6 border border-zinc-800 text-center shadow-2xl font-sans">
-        <div className="w-12 h-12 bg-red-600/10 border border-red-600/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-red-500">
-          <Key className="w-6 h-6" />
+      <div className="max-w-md mx-auto my-12 glass-card rounded-2xl p-6 border border-indigo-500/30 text-center shadow-2xl font-sans">
+        <div className="w-12 h-12 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-400">
+          <Key className="w-6 h-6 text-indigo-400" />
         </div>
-        <h2 className="text-2xl font-black text-white mb-2 font-athletic uppercase tracking-wider">Admin Control Portal</h2>
-        <p className="text-xs text-zinc-400 mb-6 font-medium">
+        <h2 className="text-2xl font-extrabold text-white mb-2 uppercase tracking-wider">Admin Control Portal</h2>
+        <p className="text-xs text-slate-400 mb-6 font-medium">
           Enter Admin Password to access schedule editors, batch scoring, and insurance withdrawal managers.
         </p>
 
@@ -132,12 +132,12 @@ export default function AdminTab({
               placeholder="Enter Admin Password"
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white text-center text-sm focus:outline-none focus:border-red-500 font-mono"
+              className="w-full bg-[#0a2540] border border-slate-700 rounded-xl px-4 py-3 text-white text-center text-sm focus:outline-none focus:border-indigo-500 font-mono"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 font-athletic uppercase tracking-wider"
+            className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/25 uppercase tracking-wider"
           >
             Unlock Admin Panel
           </button>
@@ -148,18 +148,18 @@ export default function AdminTab({
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="glass-card rounded-2xl p-5 border border-zinc-800">
-        <div className="flex justify-between items-center pb-4 border-b border-zinc-800 mb-6">
+      <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
+        <div className="flex justify-between items-center pb-4 border-b border-slate-800 mb-6">
           <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-red-500" />
+            <Shield className="w-6 h-6 text-indigo-400" />
             <div>
-              <h2 className="text-xl font-black text-white font-athletic uppercase tracking-wider">Admin Authorized Control Panel</h2>
-              <span className="text-xs text-red-400 font-bold font-athletic uppercase">Logged in as Administrator</span>
+              <h2 className="text-xl font-extrabold text-white uppercase tracking-wider">Admin Authorized Control Panel</h2>
+              <span className="text-xs text-indigo-300 font-bold uppercase">Logged in as Administrator</span>
             </div>
           </div>
           <button
             onClick={() => setIsAdminLoggedIn(false)}
-            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-red-600 hover:text-white transition-all font-athletic uppercase"
+            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white transition-all uppercase"
           >
             Lock Panel
           </button>
@@ -169,10 +169,10 @@ export default function AdminTab({
         <div className="flex flex-wrap gap-2 mb-6">
           <button
             onClick={() => setAdminSubTab('schedule')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all font-athletic uppercase tracking-wider ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all uppercase tracking-wider ${
               adminSubTab === 'schedule'
-                ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                ? 'bg-[#635bff] text-white shadow-lg shadow-indigo-500/25'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
             <Calendar className="w-4 h-4" /> Schedule & Lock Times
@@ -180,10 +180,10 @@ export default function AdminTab({
           
           <button
             onClick={() => setAdminSubTab('scoring')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all font-athletic uppercase tracking-wider ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all uppercase tracking-wider ${
               adminSubTab === 'scoring'
-                ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                ? 'bg-[#635bff] text-white shadow-lg shadow-indigo-500/25'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
             <Award className="w-4 h-4" /> Batch Athlete Scoring Table
@@ -191,10 +191,10 @@ export default function AdminTab({
 
           <button
             onClick={() => setAdminSubTab('withdrawals')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all font-athletic uppercase tracking-wider ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all uppercase tracking-wider ${
               adminSubTab === 'withdrawals'
-                ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                ? 'bg-[#635bff] text-white shadow-lg shadow-indigo-500/25'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
             <UserX className="w-4 h-4" /> Injury Withdrawals
@@ -203,17 +203,17 @@ export default function AdminTab({
 
         {/* SUB TAB 1: SCHEDULE EDITOR */}
         {adminSubTab === 'schedule' && (
-          <div className="max-w-2xl mx-auto bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <h3 className="text-base font-black text-white flex items-center gap-2 border-b border-zinc-800 pb-2 font-athletic uppercase tracking-wider">
-              <Calendar className="w-4 h-4 text-red-500" /> Edit Event Schedule & Lock Settings
+          <div className="max-w-2xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <h3 className="text-base font-extrabold text-white flex items-center gap-2 border-b border-slate-800 pb-2 uppercase tracking-wider">
+              <Calendar className="w-4 h-4 text-indigo-400" /> Edit Event Schedule & Lock Settings
             </h3>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Select Event to Edit:</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Event to Edit:</label>
               <select
                 value={selectedEditEvtId}
                 onChange={(e) => handleSelectEventToEdit(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-white text-sm font-medium"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
                 {events.map(evt => (
                   <option key={evt.id} value={evt.id}>
@@ -224,11 +224,11 @@ export default function AdminTab({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Max Point Cap (Scales Lovely Time +50 vs +25 pts):</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Max Point Cap (Scales Lovely Time +50 vs +25 pts):</label>
               <select
                 value={editPoints}
                 onChange={(e) => setEditPoints(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-white text-sm font-medium"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
                 <option value={100}>100 Points (Lovely Time awards +50 pts)</option>
                 <option value={50}>50 Points (Lovely Time awards +25 pts halved)</option>
@@ -236,11 +236,11 @@ export default function AdminTab({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Competition Day:</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Competition Day:</label>
               <select
                 value={editDay}
                 onChange={(e) => setEditDay(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-white text-sm font-medium"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
                 {COMPETITION_DAYS.map(day => (
                   <option key={day} value={day}>{day}</option>
@@ -249,18 +249,18 @@ export default function AdminTab({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Official Start Time (Locks Card Edits Automatically):</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Official Start Time (Locks Card Edits Automatically):</label>
               <input
                 type="datetime-local"
                 value={editTime}
                 onChange={(e) => setEditTime(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-white text-sm font-mono"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-mono"
               />
             </div>
 
             <button
               onClick={handleSaveScheduleUpdates}
-              className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl text-sm transition-all mt-4 font-athletic uppercase tracking-wider shadow-lg shadow-red-600/30"
+              className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-3 rounded-xl text-sm transition-all mt-4 uppercase tracking-wider shadow-lg shadow-indigo-500/25"
             >
               Save Schedule Updates
             </button>
@@ -269,23 +269,23 @@ export default function AdminTab({
 
         {/* SUB TAB 2: BATCH SCORING TABLE */}
         {adminSubTab === 'scoring' && (
-          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800 pb-4">
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
               <div>
-                <h3 className="text-base font-black text-white flex items-center gap-2 font-athletic uppercase tracking-wider">
-                  <Award className="w-4 h-4 text-red-500" /> Batch Official Athlete Scoring
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
+                  <Award className="w-4 h-4 text-indigo-400" /> Batch Official Athlete Scoring
                 </h3>
-                <p className="text-xs text-zinc-400 mt-1 font-medium">
+                <p className="text-xs text-slate-400 mt-1 font-medium">
                   Tab through the table to input official points (0 - 100) for each competitor, then save all once!
                 </p>
               </div>
 
               <div className="w-full sm:w-72">
-                <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Select Event to Score:</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Event to Score:</label>
                 <select
                   value={selectedScoreEvtId}
                   onChange={(e) => handleSelectEventToScore(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-2.5 text-white text-xs sm:text-sm font-medium"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white text-xs sm:text-sm font-medium"
                 >
                   {events.map(evt => (
                     <option key={evt.id} value={evt.id}>
@@ -298,7 +298,7 @@ export default function AdminTab({
 
             <div className="overflow-x-auto max-h-[500px] overflow-y-auto pr-2">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                <thead className="sticky top-0 bg-zinc-950 border-b border-zinc-800 text-red-500 font-black uppercase text-[11px] font-athletic tracking-wider">
+                <thead className="sticky top-0 bg-slate-950 border-b border-slate-800 text-indigo-400 font-bold uppercase text-[11px] tracking-wider">
                   <tr>
                     <th className="py-2.5 px-3">Athlete Name</th>
                     <th className="py-2.5 px-3">Division</th>
@@ -306,12 +306,12 @@ export default function AdminTab({
                     <th className="py-2.5 px-3 text-right">Official Event Points (0 - 100)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800 font-medium">
+                <tbody className="divide-y divide-slate-800 font-medium">
                   {ATHLETES_DATA.map(a => (
-                    <tr key={a.name} className="hover:bg-zinc-800/40">
+                    <tr key={a.name} className="hover:bg-slate-800/40">
                       <td className="py-2 px-3 font-semibold text-white">{a.name}</td>
-                      <td className="py-2 px-3 text-zinc-400">{a.gender}</td>
-                      <td className="py-2 px-3 text-zinc-400">{a.rank}</td>
+                      <td className="py-2 px-3 text-slate-400">{a.gender}</td>
+                      <td className="py-2 px-3 text-slate-400">{a.rank}</td>
                       <td className="py-2 px-3 text-right">
                         <input
                           type="number"
@@ -320,7 +320,7 @@ export default function AdminTab({
                           placeholder="0"
                           value={batchScoreInputs[a.name] || ''}
                           onChange={(e) => handleScoreInputChange(a.name, e.target.value)}
-                          className="w-24 bg-zinc-950 border border-red-500/80 rounded-lg p-1.5 text-center text-white font-mono font-bold text-sm focus:outline-none focus:bg-zinc-800"
+                          className="w-24 bg-slate-950 border border-indigo-500/80 rounded-lg p-1.5 text-center text-white font-mono font-bold text-sm focus:outline-none focus:bg-slate-800"
                         />
                       </td>
                     </tr>
@@ -331,7 +331,7 @@ export default function AdminTab({
 
             <button
               onClick={handleSaveAllBatchScores}
-              className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 font-athletic uppercase tracking-wider"
+              className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 uppercase tracking-wider"
             >
               <Save className="w-4 h-4" /> Save All Scores for Selected Event
             </button>
@@ -340,20 +340,20 @@ export default function AdminTab({
 
         {/* SUB TAB 3: INJURY WITHDRAWALS */}
         {adminSubTab === 'withdrawals' && (
-          <div className="max-w-2xl mx-auto bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <h3 className="text-base font-black text-white flex items-center gap-2 border-b border-zinc-800 pb-2 font-athletic uppercase tracking-wider">
-              <UserX className="w-4 h-4 text-red-500" /> Log Official Athlete Injury/Illness Withdrawal
+          <div className="max-w-2xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <h3 className="text-base font-extrabold text-white flex items-center gap-2 border-b border-slate-800 pb-2 uppercase tracking-wider">
+              <UserX className="w-4 h-4 text-indigo-400" /> Log Official Athlete Injury/Illness Withdrawal
             </h3>
-            <p className="text-xs text-zinc-400 font-medium">
+            <p className="text-xs text-slate-400 font-medium">
               Logging a withdrawal automatically activates the Insurance Policy backup athlete (£2m or less) for all coaches holding that athlete from the selected event onwards.
             </p>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Withdrawn Athlete:</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Withdrawn Athlete:</label>
               <select
                 value={withdrawalAthlete}
                 onChange={(e) => setWithdrawalAthlete(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-white text-sm font-medium"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
                 {ATHLETES_DATA.map(a => (
                   <option key={a.name} value={a.name}>{a.name} ({a.gender})</option>
@@ -362,11 +362,11 @@ export default function AdminTab({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1 font-athletic">Effective Starting Event:</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Effective Starting Event:</label>
               <select
                 value={withdrawalEventId}
                 onChange={(e) => setWithdrawalEventId(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-white text-sm font-medium"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
                 {events.map(evt => (
                   <option key={evt.id} value={evt.id}>{evt.name} ({evt.day})</option>
@@ -376,7 +376,7 @@ export default function AdminTab({
 
             <button
               onClick={handleAddWithdrawal}
-              className="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 font-athletic uppercase tracking-wider"
+              className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/25 uppercase tracking-wider"
             >
               Log Official Withdrawal & Activate Insurance
             </button>
