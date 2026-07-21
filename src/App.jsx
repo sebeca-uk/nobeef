@@ -6,6 +6,7 @@ import RostersTab from './components/RostersTab';
 import EventsTab from './components/EventsTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import PricingTab from './components/PricingTab';
+import FaqTab from './components/FaqTab';
 import AdminTab from './components/AdminTab';
 import { Lock, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 
@@ -55,7 +56,9 @@ export default function App() {
   const handleSiteLogin = (e) => {
     e.preventDefault();
     const cleanPw = sitePassword.trim().toLowerCase();
-    if (cleanPw === 'nobeef' || cleanPw === 'nobeef2026') {
+    const expectedSitePw = (import.meta.env.VITE_SITE_PASSWORD || 'nobeef').toLowerCase();
+    const expectedAdminPw = (import.meta.env.VITE_ADMIN_PASSWORD || 'nobeef2026').toLowerCase();
+    if (cleanPw === expectedSitePw || cleanPw === expectedAdminPw) {
       setIsAuthenticated(true);
       setAuthError(false);
       localStorage.setItem('nobeef_site_access', 'true');
@@ -173,7 +176,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#0b0f19] text-slate-100 font-sans pb-12">
+    <div className="min-h-screen flex flex-col justify-between bg-[#0b0f19] text-slate-100 font-sans pb-24 md:pb-12">
       <div>
         <Header activeTab={activeTab} setActiveTab={setActiveTab} events={events} />
 
@@ -204,6 +207,8 @@ export default function App() {
           {activeTab === 'snapshot' && <AnalyticsTab />}
 
           {activeTab === 'pricing' && <PricingTab />}
+
+          {activeTab === 'faq' && <FaqTab />}
 
           {activeTab === 'admin' && (
             <AdminTab

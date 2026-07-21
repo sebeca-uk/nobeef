@@ -7,19 +7,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkBg: "#0b0f19",
-        cardBg: "#151c2c",
-        cardHover: "#1e293b",
-        goldAccent: "#f59e0b",
-        cyanAccent: "#38bdf8",
-        greenAccent: "#10b981",
-        redAccent: "#ef4444",
-        textMain: "#f8fafc",
-        textMuted: "#94a3b8",
-        borderColor: "#334155",
+        darkBg: "var(--bg-main)",
+        cardBg: "var(--bg-surface)",
+        cardHover: "var(--bg-surface-elevated)",
+        crossfitRed: "var(--accent-red)",
+        accentBlue: "var(--accent-blue)",
+        accentBlueHover: "var(--accent-blue-hover)",
+        textMain: "var(--text-primary)",
+        textSecondary: "var(--text-secondary)",
+        textMuted: "var(--text-muted)",
+        borderColor: "var(--border-color)",
       },
       fontFamily: {
-        sans: ['Outfit', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['var(--font-body)'],
+        athletic: ['var(--font-heading)'],
+        mono: ['var(--font-mono)'],
       }
     },
   },
