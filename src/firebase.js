@@ -27,10 +27,12 @@ export { db };
 
 // Helper to get active league namespace prefix
 const getLeaguePrefix = () => {
-  // If we are in /g/:gymSlug/:compSlug, parse from URL
+  // If we are in /nobeef/g/:gymSlug/:compSlug, parse from URL
   const pathParts = window.location.pathname.split('/');
-  if (pathParts.length >= 4 && pathParts[1] === 'g') {
-    return `${pathParts[2]}_${pathParts[3]}`;
+  // On GitHub Pages, path starts with /nobeef/ so 'g' will be at index 2
+  const gIndex = pathParts.indexOf('g');
+  if (gIndex !== -1 && pathParts.length > gIndex + 2) {
+    return `${pathParts[gIndex + 1]}_${pathParts[gIndex + 2]}`;
   }
   return 'nobeef_crossfit-games-2026';
 };

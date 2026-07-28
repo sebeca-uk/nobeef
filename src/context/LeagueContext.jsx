@@ -120,9 +120,10 @@ export function LeagueProvider({ children }) {
       const pathParts = window.location.pathname.split('/');
       let activeLeague = null;
 
-      if (pathParts.length >= 4 && pathParts[1] === 'g') {
-        const gymSlug = pathParts[2];
-        const compSlug = pathParts[3];
+      const gIndex = pathParts.indexOf('g');
+      if (gIndex !== -1 && pathParts.length > gIndex + 2) {
+        const gymSlug = pathParts[gIndex + 1];
+        const compSlug = pathParts[gIndex + 2];
         const targetId = `${gymSlug}_${compSlug}`;
 
         // Retrieve custom leagues from localStorage
