@@ -159,20 +159,23 @@ export default function LandingPage() {
           ))}
 
           {/* Create Competition Card */}
-          <div className="glass-card rounded-2xl p-6 border border-dashed border-slate-700 hover:border-indigo-500/50 transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[240px] cursor-pointer hover:-translate-y-1">
+          <Link
+            to="/create-league"
+            className="group glass-card rounded-2xl p-6 border border-dashed border-slate-700 hover:border-indigo-500/50 transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[240px] cursor-pointer hover:-translate-y-1"
+          >
             <div className="w-12 h-12 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center mb-3">
-              <Flame className="w-6 h-6 text-slate-400" />
+              <Flame className="w-6 h-6 text-slate-400 group-hover:text-indigo-400 transition-colors" />
             </div>
-            <h3 className="font-display text-sm font-bold text-slate-300 uppercase tracking-wider">
+            <h3 className="font-display text-sm font-bold text-slate-300 uppercase tracking-wider group-hover:text-white transition-colors">
               Create a League
             </h3>
             <p className="text-[11px] text-slate-500 mt-1 max-w-[200px]">
               Set up a fantasy league for your gym — pick a competition, configure rules, invite your crew.
             </p>
             <span className="mt-3 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
-              Coming in Phase 2
+              Start Wizard
             </span>
-          </div>
+          </Link>
         </div>
 
         {/* Existing Leagues Quick Access */}

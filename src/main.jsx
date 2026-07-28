@@ -5,6 +5,7 @@ import App from './App.jsx';
 import LandingPage from './components/LandingPage.jsx';
 import CompetitionPage from './components/CompetitionPage.jsx';
 import GymPage from './components/GymPage.jsx';
+import LeagueWizard from './components/LeagueWizard.jsx';
 import { LeagueProvider } from './context/LeagueContext.jsx';
 import './index.css';
 
@@ -41,12 +42,10 @@ class ErrorBoundary extends React.Component {
  * Route Structure:
  * 
  * /                              → Landing page (browse competitions, join league)
+ * /create-league                 → Setup wizard to register a custom gym league
  * /c/:competitionSlug            → Competition detail (athletes, events, leagues list)
  * /g/:gymSlug                    → Gym profile (their leagues across competitions)
  * /g/:gymSlug/:competitionSlug   → League portal (the full fantasy league experience)
- * 
- * For Phase 1, the legacy NoBeef league is also mounted at the root /league path
- * for backwards compatibility.
  */
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -56,6 +55,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Routes>
           {/* Landing Page */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Create League Wizard */}
+          <Route path="/create-league" element={<LeagueWizard />} />
 
           {/* Competition Detail */}
           <Route path="/c/:competitionSlug" element={<CompetitionPage />} />
@@ -77,7 +79,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route
             path="/league"
             element={
-              <LeagueProvider leagueId="nobeef-crossfit-games-2026">
+              <LeagueProvider>
                 <App />
               </LeagueProvider>
             }
@@ -87,3 +89,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>,
 );
+

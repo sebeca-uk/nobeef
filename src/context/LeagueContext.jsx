@@ -109,24 +109,64 @@ export const formatBudget = (spent, cap, currency = '£') => {
   return `${currency}${spent.toFixed(1)}m / ${currency}${cap}m`;
 };
 
-export function LeagueProvider({ leagueId, children }) {
+export function LeagueProvider({ children }) {
   const [league, setLeague] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Phase 1: Load legacy config from seed data
-    // Phase 2+: This will fetch from Firestore based on leagueId
     try {
-      const config = buildLegacyLeagueConfig();
-      setLeague(config);
+      // Discover active gymSlug and competitionSlug from path
+      const pathParts = window.location.pathname.split('/');
+      let activeLeague = null;
+
+      if (pathParts.length >= 4 && pathParts[1] === 'g') {
+        const gymSlug = pathParts[2];
+        const compSlug = pathParts[3];
+        const targetId = `${gymSlug}_${compSlug}`;
+
+        // Retrieve custom leagues from localStorage
+        const customLeagues = JSON.parse(localStorage.getItem('nobeef_custom_leagues') || '[]');
+        activeLeague = customLeagues.find(l => l.id === targetId);
+      }
+
+      if (!activeLeague) {
+        // Fallback to legacy static NoBeef CrossFit Games config
+        activeLeague = buildLegacyLeagueConfig();
+      } else {
+        // Hydrate dynamic parameters (totals, most picked) for custom leagues
+        const athletes = activeLeague.athletes || [];
+        const lockedTeams = activeLeague.lockedTeams || [];
+        
+        const allSquadAthletes = lockedTeams.flatMap(t => t.squad);
+        const athletePickCounts = {};
+        allSquadAthletes.forEach(name => {
+          athletePickCounts[name] = (athletePickCounts[name] || 0) + 1;
+        });
+        const mostPickedAthlete = Object.entries(athletePickCounts)
+          .sort(([, a], [, b]) => b - a)[0];
+
+        activeLeague.totalAthletes = athletes.length;
+        activeLeague.menCount = athletes.filter(a => a.gender === 'Men').length;
+        activeLeague.womenCount = athletes.filter(a => a.gender === 'Women').length;
+        activeLeague.totalCoaches = lockedTeams.length;
+        activeLeague.mostPickedAthlete = mostPickedAthlete
+          ? {
+              name: mostPickedAthlete[0],
+              count: mostPickedAthlete[1],
+              percentage: Math.round((mostPickedAthlete[1] / lockedTeams.length) * 100),
+            }
+          : null;
+      }
+
+      setLeague(activeLeague);
       setLoading(false);
     } catch (err) {
       console.error('Failed to load league config:', err);
       setError(err);
       setLoading(false);
     }
-  }, [leagueId]);
+  }, [window.location.pathname]);
 
   if (loading) {
     return (
