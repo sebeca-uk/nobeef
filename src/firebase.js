@@ -25,33 +25,47 @@ try {
 
 export { db };
 
-// Local Storage Fallback Engine for instant reactivity & full functionality
-const STORAGE_KEYS = {
-  EVENTS: 'nobeef_events_v1',
-  CARDS: 'nobeef_cards_v1',
-  SCORES: 'nobeef_scores_v1',
-  WITHDRAWALS: 'nobeef_withdrawals_v1',
-  BONUS_PICKS: 'nobeef_bonus_picks_v1',
-  PAID_2: 'nobeef_paid_2_coaches_v1',
-  PAID_5: 'nobeef_paid_5_coaches_v1'
+// Helper to get active league namespace prefix
+const getLeaguePrefix = () => {
+  // If we are in /g/:gymSlug/:compSlug, parse from URL
+  const pathParts = window.location.pathname.split('/');
+  if (pathParts.length >= 4 && pathParts[1] === 'g') {
+    return `${pathParts[2]}_${pathParts[3]}`;
+  }
+  return 'nobeef_crossfit-games-2026';
+};
+
+const getKeys = () => {
+  const prefix = getLeaguePrefix();
+  return {
+    EVENTS: `${prefix}_events_v1`,
+    CARDS: `${prefix}_cards_v1`,
+    SCORES: `${prefix}_scores_v1`,
+    WITHDRAWALS: `${prefix}_withdrawals_v1`,
+    BONUS_PICKS: `${prefix}_bonus_picks_v1`,
+    PAID_2: `${prefix}_paid_2_coaches_v1`,
+    PAID_5: `${prefix}_paid_5_coaches_v1`
+  };
 };
 
 export const getLocalOrSeedEvents = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.EVENTS);
+    const stored = localStorage.getItem(keys.EVENTS);
     if (stored) {
       return JSON.parse(stored);
     }
   } catch (e) {
     console.error("Failed to parse local events", e);
   }
-  localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(SEED_EVENTS));
+  localStorage.setItem(keys.EVENTS, JSON.stringify(SEED_EVENTS));
   return SEED_EVENTS;
 };
 
 export const saveLocalEvents = (events) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+    localStorage.setItem(keys.EVENTS, JSON.stringify(events));
   } catch (e) {
     console.error("Failed to save local events", e);
   }
@@ -59,8 +73,9 @@ export const saveLocalEvents = (events) => {
 };
 
 export const getLocalCards = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.CARDS);
+    const stored = localStorage.getItem(keys.CARDS);
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
     console.error("Failed to parse local cards", e);
@@ -69,8 +84,9 @@ export const getLocalCards = () => {
 };
 
 export const saveLocalCards = (cards) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.CARDS, JSON.stringify(cards));
+    localStorage.setItem(keys.CARDS, JSON.stringify(cards));
   } catch (e) {
     console.error("Failed to save local cards", e);
   }
@@ -78,8 +94,9 @@ export const saveLocalCards = (cards) => {
 };
 
 export const getLocalScores = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.SCORES);
+    const stored = localStorage.getItem(keys.SCORES);
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
     console.error("Failed to parse local scores", e);
@@ -88,8 +105,9 @@ export const getLocalScores = () => {
 };
 
 export const saveLocalScores = (scores) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.SCORES, JSON.stringify(scores));
+    localStorage.setItem(keys.SCORES, JSON.stringify(scores));
   } catch (e) {
     console.error("Failed to save local scores", e);
   }
@@ -97,8 +115,9 @@ export const saveLocalScores = (scores) => {
 };
 
 export const getLocalWithdrawals = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.WITHDRAWALS);
+    const stored = localStorage.getItem(keys.WITHDRAWALS);
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
     console.error("Failed to parse local withdrawals", e);
@@ -107,8 +126,9 @@ export const getLocalWithdrawals = () => {
 };
 
 export const saveLocalWithdrawals = (withdrawals) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.WITHDRAWALS, JSON.stringify(withdrawals));
+    localStorage.setItem(keys.WITHDRAWALS, JSON.stringify(withdrawals));
   } catch (e) {
     console.error("Failed to save local withdrawals", e);
   }
@@ -116,8 +136,9 @@ export const saveLocalWithdrawals = (withdrawals) => {
 };
 
 export const getLocalBonusPicks = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.BONUS_PICKS);
+    const stored = localStorage.getItem(keys.BONUS_PICKS);
     return stored ? JSON.parse(stored) : {};
   } catch (e) {
     console.error("Failed to parse local bonus picks", e);
@@ -126,8 +147,9 @@ export const getLocalBonusPicks = () => {
 };
 
 export const saveLocalBonusPicks = (bonusPicks) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.BONUS_PICKS, JSON.stringify(bonusPicks));
+    localStorage.setItem(keys.BONUS_PICKS, JSON.stringify(bonusPicks));
   } catch (e) {
     console.error("Failed to save local bonus picks", e);
   }
@@ -135,8 +157,9 @@ export const saveLocalBonusPicks = (bonusPicks) => {
 };
 
 export const getLocalPaid2Coaches = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.PAID_2);
+    const stored = localStorage.getItem(keys.PAID_2);
     if (stored) {
       return JSON.parse(stored);
     }
@@ -144,13 +167,14 @@ export const getLocalPaid2Coaches = () => {
     console.error("Failed to parse local paid 2 coaches", e);
   }
   const defaultPaid = ["Boycey", "Sam Joyce", "Connor Baker-Elliott", "Luke Boer", "Al Beard", "Chris Quinney", "Han Greenwood", "Jack Kettlety"];
-  localStorage.setItem(STORAGE_KEYS.PAID_2, JSON.stringify(defaultPaid));
+  localStorage.setItem(keys.PAID_2, JSON.stringify(defaultPaid));
   return defaultPaid;
 };
 
 export const saveLocalPaid2Coaches = (coaches) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.PAID_2, JSON.stringify(coaches));
+    localStorage.setItem(keys.PAID_2, JSON.stringify(coaches));
   } catch (e) {
     console.error("Failed to save local paid 2 coaches", e);
   }
@@ -158,8 +182,9 @@ export const saveLocalPaid2Coaches = (coaches) => {
 };
 
 export const getLocalPaid5Coaches = () => {
+  const keys = getKeys();
   try {
-    const stored = localStorage.getItem(STORAGE_KEYS.PAID_5);
+    const stored = localStorage.getItem(keys.PAID_5);
     if (stored) {
       return JSON.parse(stored);
     }
@@ -167,15 +192,17 @@ export const getLocalPaid5Coaches = () => {
     console.error("Failed to parse local paid 5 coaches", e);
   }
   const defaultPaid = ["Clo", "Joshua Brooke", "Sean Carey"];
-  localStorage.setItem(STORAGE_KEYS.PAID_5, JSON.stringify(defaultPaid));
+  localStorage.setItem(keys.PAID_5, JSON.stringify(defaultPaid));
   return defaultPaid;
 };
 
 export const saveLocalPaid5Coaches = (coaches) => {
+  const keys = getKeys();
   try {
-    localStorage.setItem(STORAGE_KEYS.PAID_5, JSON.stringify(coaches));
+    localStorage.setItem(keys.PAID_5, JSON.stringify(coaches));
   } catch (e) {
     console.error("Failed to save local paid 5 coaches", e);
   }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };
+

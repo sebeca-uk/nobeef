@@ -1,6 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
+import LandingPage from './components/LandingPage.jsx';
+import CompetitionPage from './components/CompetitionPage.jsx';
+import GymPage from './components/GymPage.jsx';
+import { LeagueProvider } from './context/LeagueContext.jsx';
 import './index.css';
 
 class ErrorBoundary extends React.Component {
@@ -32,10 +37,53 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+/**
+ * Route Structure:
+ * 
+ * /                              → Landing page (browse competitions, join league)
+ * /c/:competitionSlug            → Competition detail (athletes, events, leagues list)
+ * /g/:gymSlug                    → Gym profile (their leagues across competitions)
+ * /g/:gymSlug/:competitionSlug   → League portal (the full fantasy league experience)
+ * 
+ * For Phase 1, the legacy NoBeef league is also mounted at the root /league path
+ * for backwards compatibility.
+ */
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      <BrowserRouter>
+        <Routes>
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Competition Detail */}
+          <Route path="/c/:competitionSlug" element={<CompetitionPage />} />
+
+          {/* Gym Profile */}
+          <Route path="/g/:gymSlug" element={<GymPage />} />
+
+          {/* League Portal — the full fantasy league experience */}
+          <Route
+            path="/g/:gymSlug/:competitionSlug"
+            element={
+              <LeagueProvider>
+                <App />
+              </LeagueProvider>
+            }
+          />
+
+          {/* Legacy route — backwards compatibility for the original NoBeef league */}
+          <Route
+            path="/league"
+            element={
+              <LeagueProvider leagueId="nobeef-crossfit-games-2026">
+                <App />
+              </LeagueProvider>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>,
 );

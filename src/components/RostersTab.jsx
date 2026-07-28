@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { LOCKED_TEAMS, ATHLETES_DATA } from '../data/seedData';
+import { useLeague } from '../context/LeagueContext';
 import { Lock, Shield, Flame, Filter, DollarSign } from 'lucide-react';
 
 export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
+  const league = useLeague();
   const [rosterFilter, setRosterFilter] = useState('ALL'); // 'ALL', 'PAID_2', 'PAID_5'
 
   const getAthletePrice = (name) => {
     const clean = name.replace('*', '').trim();
-    const ath = ATHLETES_DATA.find(a => a.name.replace('*', '').trim() === clean);
+    const ath = league.athletes.find(a => a.name.replace('*', '').trim() === clean);
     return ath ? ath.price : 0;
   };
 
   // Filter roster list based on selection
-  const filteredTeams = LOCKED_TEAMS.filter(t => {
+  const filteredTeams = league.lockedTeams.filter(t => {
     if (rosterFilter === 'PAID_2') return paid2Coaches.includes(t.coach);
     if (rosterFilter === 'PAID_5') return paid5Coaches.includes(t.coach);
     return true;
@@ -29,7 +30,7 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
               <span>All Coach Rosters & Insurance Policies</span>
             </h2>
             <p className="text-xs text-slate-400 mt-1 font-medium">
-              Official rosters locked as of July 20, 2026. No roster edits permitted after deadline.
+              Official rosters locked as of {league.lockDeadline}. No roster edits permitted after deadline.
             </p>
           </div>
           <div className="bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-3.5 py-1 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1 shrink-0">
@@ -59,10 +60,10 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                 }`}
               >
                 {filterType === 'ALL' 
-                  ? '🏆 All (25)' 
+                  ? `🏆 All (${league.lockedTeams.length})` 
                   : filterType === 'PAID_2' 
-                    ? `🥈 £2 League (${paid2Coaches.length})` 
-                    : `🥇 £5 League (${paid5Coaches.length})`
+                    ? `🥈 ${league.rules.currency}${league.leagueTiers.paid_tier_1.price} League (${paid2Coaches.length})` 
+                    : `🥇 ${league.rules.currency}${league.leagueTiers.paid_tier_2.price} League (${paid5Coaches.length})`
                 }
               </button>
             ))}
@@ -82,13 +83,13 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                   <tr className="border-b border-slate-800 text-xs font-bold text-indigo-400 uppercase tracking-wider bg-slate-900/90">
                     <th className="py-3.5 px-4 w-12">#</th>
                     <th className="py-3.5 px-4">Coach Name</th>
-                    <th className="py-3.5 px-4">Active £11.5m Squad</th>
-                    <th className="py-3.5 px-4">🛡️ Insurance Policy (£2m or less)</th>
+                    <th className="py-3.5 px-4">Active {league.rules.currency}{league.rules.salaryCap}m Squad</th>
+                    <th className="py-3.5 px-4">🛡️ Insurance Policy ({league.rules.currency}{league.rules.insuranceMaxPrice}m or less)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-sm font-medium">
                   {filteredTeams.map((t) => {
-                    const originalIdx = LOCKED_TEAMS.findIndex(team => team.coach === t.coach) + 1;
+                    const originalIdx = league.lockedTeams.findIndex(team => team.coach === t.coach) + 1;
                     return (
                       <tr key={t.coach} className="hover:bg-slate-800/40 transition-colors">
                         <td className="py-4 px-4 font-bold text-slate-400 font-mono">#{originalIdx}</td>
@@ -99,10 +100,10 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                             <div className="flex items-center gap-1.5 mt-1">
                               <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 font-mono">Free</span>
                               {paid2Coaches.includes(t.coach) && (
-                                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono shadow-sm">🥈 £2</span>
+                                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono shadow-sm">🥈 {league.rules.currency}{league.leagueTiers.paid_tier_1.price}</span>
                               )}
                               {paid5Coaches.includes(t.coach) && (
-                                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono shadow-sm">🥇 £5</span>
+                                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono shadow-sm">🥇 {league.rules.currency}{league.leagueTiers.paid_tier_2.price}</span>
                               )}
                             </div>
                           </div>
@@ -111,7 +112,7 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                           <div className="flex flex-wrap gap-2">
                             {t.squad.map(ath => {
                               const price = getAthletePrice(ath);
-                              const isAimee = ath.includes("Aimee Cringle");
+                              const isMostPicked = league.mostPickedAthlete && ath.includes(league.mostPickedAthlete.name);
                               return (
                                 <span
                                   key={ath}
@@ -119,11 +120,11 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                                 >
                                   <span>{ath}</span>
                                   <span className="text-indigo-300 font-bold bg-indigo-500/20 px-1.5 py-0.5 rounded text-[10px] font-mono border border-indigo-500/30">
-                                    £{price}m
+                                    {league.rules.currency}{price}m
                                   </span>
-                                  {isAimee && (
+                                  {isMostPicked && (
                                     <span className="bg-indigo-600 text-white px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase flex items-center gap-0.5">
-                                      <Flame className="w-2.5 h-2.5 text-cyan-400" /> 60% Pick
+                                      <Flame className="w-2.5 h-2.5 text-cyan-400" /> {league.mostPickedAthlete.percentage}% Pick
                                     </span>
                                   )}
                                 </span>
@@ -135,7 +136,7 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                           <div className="flex items-center gap-1.5">
                             <Shield className="w-4 h-4 text-emerald-400" />
                             <span>{t.ins}</span>
-                            <span className="text-xs text-slate-400 font-mono">(£{getAthletePrice(t.ins)}m)</span>
+                            <span className="text-xs text-slate-400 font-mono">({league.rules.currency}{getAthletePrice(t.ins)}m)</span>
                           </div>
                         </td>
                       </tr>
@@ -148,7 +149,7 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
             {/* Mobile Stacked Card View */}
             <div className="md:hidden space-y-4">
               {filteredTeams.map((t) => {
-                const originalIdx = LOCKED_TEAMS.findIndex(team => team.coach === t.coach) + 1;
+                const originalIdx = league.lockedTeams.findIndex(team => team.coach === t.coach) + 1;
                 return (
                   <div key={t.coach} className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 shadow-md">
                     <div className="flex justify-between items-start border-b border-slate-800 pb-2">
@@ -161,10 +162,10 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                         <div className="flex items-center gap-1">
                           <span className="text-[8px] font-extrabold px-1 py-0.2 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 font-mono">Free</span>
                           {paid2Coaches.includes(t.coach) && (
-                            <span className="text-[8px] font-extrabold px-1 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">£2</span>
+                            <span className="text-[8px] font-extrabold px-1 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_1.price}</span>
                           )}
                           {paid5Coaches.includes(t.coach) && (
-                            <span className="text-[8px] font-extrabold px-1 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">£5</span>
+                            <span className="text-[8px] font-extrabold px-1 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_2.price}</span>
                           )}
                         </div>
                       </div>
@@ -180,7 +181,7 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
                           const price = getAthletePrice(ath);
                           return (
                             <span key={ath} className="bg-slate-950 text-slate-200 text-xs px-2.5 py-1 rounded-lg border border-slate-800 font-medium">
-                              {ath} <strong className="text-indigo-300 font-mono ml-1">£{price}m</strong>
+                              {ath} <strong className="text-indigo-300 font-mono ml-1">{league.rules.currency}{price}m</strong>
                             </span>
                           );
                         })}
@@ -189,7 +190,7 @@ export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
 
                     <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
                       <span className="text-slate-400 font-medium">🛡️ Insurance Policy:</span>
-                      <span className="text-emerald-400 font-bold">{t.ins} (£{getAthletePrice(t.ins)}m)</span>
+                      <span className="text-emerald-400 font-bold">{t.ins} ({league.rules.currency}{getAthletePrice(t.ins)}m)</span>
                     </div>
                   </div>
                 );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ATHLETES_DATA, COMPETITION_DAYS, LOCKED_TEAMS } from '../data/seedData';
+import { useLeague } from '../context/LeagueContext';
 import { 
   Shield, Key, Calendar, Award, Save, Lock, AlertCircle, 
   CheckCircle2, UserX, DollarSign, Search, Users, AlertTriangle 
@@ -17,6 +17,8 @@ export default function AdminTab({
   onSavePaid2Coaches,
   onSavePaid5Coaches
 }) {
+  const league = useLeague();
+
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [adminSubTab, setAdminSubTab] = useState('schedule');
@@ -26,14 +28,17 @@ export default function AdminTab({
   const selectedEditEvt = events.find(e => e.id === selectedEditEvtId) || events[0];
 
   const [editPoints, setEditPoints] = useState(selectedEditEvt?.maxPoints || 100);
-  const [editDay, setEditDay] = useState(selectedEditEvt?.day || COMPETITION_DAYS[0]);
+  const [editDay, setEditDay] = useState(selectedEditEvt?.day || league.competitionDays[0]);
   const [editTime, setEditTime] = useState(selectedEditEvt?.startTime || '2026-07-22T09:00');
 
   // Sub-Tab 2: Batch Scoring State
   const [selectedScoreEvtId, setSelectedScoreEvtId] = useState(events[0]?.id || '');
+  const selectedScoreEvt = events.find(e => e.id === selectedScoreEvtId) || events[0];
+  const currentMaxPoints = selectedScoreEvt?.maxPoints || 100;
+
   const [batchScoreInputs, setBatchScoreInputs] = useState(() => {
     const map = {};
-    ATHLETES_DATA.forEach(a => {
+    league.athletes.forEach(a => {
       const existing = scores.find(s => s.eventId === events[0]?.id && s.athlete === a.name);
       map[a.name] = existing ? String(existing.points) : '';
     });
@@ -41,7 +46,7 @@ export default function AdminTab({
   });
 
   // Sub-Tab 3: Withdrawal State
-  const [withdrawalAthlete, setWithdrawalAthlete] = useState(ATHLETES_DATA[0].name);
+  const [withdrawalAthlete, setWithdrawalAthlete] = useState(league.athletes[0]?.name || '');
   const [withdrawalEventId, setWithdrawalEventId] = useState(events[0]?.id || '');
 
   // Sub-Tab 4: Leagues & Payments State
@@ -49,8 +54,8 @@ export default function AdminTab({
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
-    const expectedAdminPw = import.meta.env.VITE_ADMIN_PASSWORD || 'nobeef2026';
-    if (passwordInput === expectedAdminPw) {
+    const expectedAdminPw = league.adminPassword;
+    if (passwordInput.toLowerCase() === expectedAdminPw) {
       setIsAdminLoggedIn(true);
     } else {
       alert('⛔ Incorrect Admin Password!');
@@ -82,7 +87,7 @@ export default function AdminTab({
   const handleSelectEventToScore = (evtId) => {
     setSelectedScoreEvtId(evtId);
     const map = {};
-    ATHLETES_DATA.forEach(a => {
+    league.athletes.forEach(a => {
       const existing = scores.find(s => s.eventId === evtId && s.athlete === a.name);
       map[a.name] = existing ? String(existing.points) : '';
     });
@@ -245,14 +250,16 @@ export default function AdminTab({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Max Point Cap (Scales Lovely Time +50 vs +25 pts):</label>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                Max Point Cap (Scales Lovely Time +{league.rules.lovelyTimeBonus100} vs +{league.rules.lovelyTimeBonus50} pts):
+              </label>
               <select
                 value={editPoints}
                 onChange={(e) => setEditPoints(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
-                <option value={100}>100 Points (Lovely Time awards +50 pts)</option>
-                <option value={50}>50 Points (Lovely Time awards +25 pts halved)</option>
+                <option value={100}>100 Points (Lovely Time awards +{league.rules.lovelyTimeBonus100} pts)</option>
+                <option value={50}>50 Points (Lovely Time awards +{league.rules.lovelyTimeBonus50} pts halved)</option>
               </select>
             </div>
 
@@ -263,7 +270,7 @@ export default function AdminTab({
                 onChange={(e) => setEditDay(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
-                {COMPETITION_DAYS.map(day => (
+                {league.competitionDays.map(day => (
                   <option key={day} value={day}>{day}</option>
                 ))}
               </select>
@@ -297,7 +304,7 @@ export default function AdminTab({
                   <Award className="w-4 h-4 text-indigo-400" /> Batch Official Athlete Scoring
                 </h3>
                 <p className="text-xs text-slate-400 mt-1 font-medium">
-                  Tab through the table to input official points (0 - 100) for each competitor, then save all once!
+                  Tab through the table to input official points (0 - {currentMaxPoints}) for each competitor, then save all once!
                 </p>
               </div>
 
@@ -325,11 +332,11 @@ export default function AdminTab({
                     <th className="py-2.5 px-3">Athlete Name</th>
                     <th className="py-2.5 px-3">Division</th>
                     <th className="py-2.5 px-3">Rank Tier</th>
-                    <th className="py-2.5 px-3 text-right">Official Event Points (0 - 100)</th>
+                    <th className="py-2.5 px-3 text-right">Official Event Points (0 - {currentMaxPoints})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 font-medium">
-                  {ATHLETES_DATA.map(a => (
+                  {league.athletes.map(a => (
                     <tr key={a.name} className="hover:bg-slate-800/40">
                       <td className="py-2 px-3 font-semibold text-white">{a.name}</td>
                       <td className="py-2 px-3 text-slate-400">{a.gender}</td>
@@ -338,7 +345,7 @@ export default function AdminTab({
                         <input
                           type="number"
                           min="0"
-                          max="100"
+                          max={currentMaxPoints}
                           placeholder="0"
                           value={batchScoreInputs[a.name] || ''}
                           onChange={(e) => handleScoreInputChange(a.name, e.target.value)}
@@ -353,7 +360,7 @@ export default function AdminTab({
 
             {/* Mobile: one card per athlete */}
             <div className="sm:hidden max-h-[500px] overflow-y-auto space-y-2 pr-1">
-              {ATHLETES_DATA.map(a => (
+              {league.athletes.map(a => (
                 <div key={a.name} className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="font-semibold text-white text-sm truncate">{a.name}</div>
@@ -362,7 +369,7 @@ export default function AdminTab({
                   <input
                     type="number"
                     min="0"
-                    max="100"
+                    max={currentMaxPoints}
                     placeholder="0"
                     value={batchScoreInputs[a.name] || ''}
                     onChange={(e) => handleScoreInputChange(a.name, e.target.value)}
@@ -388,7 +395,7 @@ export default function AdminTab({
               <UserX className="w-4 h-4 text-indigo-400" /> Log Official Athlete Injury/Illness Withdrawal
             </h3>
             <p className="text-xs text-slate-400 font-medium">
-              Logging a withdrawal automatically activates the Insurance Policy backup athlete (£2m or less) for all coaches holding that athlete from the selected event onwards.
+              Logging a withdrawal automatically activates the Insurance Policy backup athlete ({league.rules.currency}{league.rules.insuranceMaxPrice}m or less) for all coaches holding that athlete from the selected event onwards.
             </p>
 
             <div>
@@ -398,7 +405,7 @@ export default function AdminTab({
                 onChange={(e) => setWithdrawalAthlete(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm font-medium"
               >
-                {ATHLETES_DATA.map(a => (
+                {league.athletes.map(a => (
                   <option key={a.name} value={a.name}>{a.name} ({a.gender})</option>
                 ))}
               </select>
@@ -441,48 +448,48 @@ export default function AdminTab({
             {/* Top Summary Widgets */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* £2 summary */}
-              <div className={`p-4 rounded-xl border ${paid2Coaches.length >= 5 ? 'bg-slate-950/60 border-slate-800' : 'bg-amber-950/20 border-amber-900/30'} flex justify-between items-center text-xs`}>
+              <div className={`p-4 rounded-xl border ${paid2Coaches.length >= league.leagueTiers.paid_tier_1.minCoaches ? 'bg-slate-950/60 border-slate-800' : 'bg-amber-950/20 border-amber-900/30'} flex justify-between items-center text-xs`}>
                 <div className="space-y-1">
                   <h4 className="font-extrabold text-white text-sm uppercase tracking-wider flex items-center gap-1.5">
                     <DollarSign className="w-4 h-4 text-slate-300" />
-                    <span>£2 Buy-In League</span>
+                    <span>{league.leagueTiers.paid_tier_1.name}</span>
                   </h4>
                   <p className="text-slate-400 font-medium">
-                    Min 5 coaches required. Registered: <strong className="text-white font-mono text-sm">{paid2Coaches.length}</strong>
+                    Min {league.leagueTiers.paid_tier_1.minCoaches} coaches required. Registered: <strong className="text-white font-mono text-sm">{paid2Coaches.length}</strong>
                   </p>
                 </div>
                 <div>
-                  {paid2Coaches.length >= 5 ? (
+                  {paid2Coaches.length >= league.leagueTiers.paid_tier_1.minCoaches ? (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
                       🟢 Active
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider">
-                      ⚠️ Pending ({5 - paid2Coaches.length} more)
+                      ⚠️ Pending ({league.leagueTiers.paid_tier_1.minCoaches - paid2Coaches.length} more)
                     </span>
                   )}
                 </div>
               </div>
 
               {/* £5 summary */}
-              <div className={`p-4 rounded-xl border ${paid5Coaches.length >= 5 ? 'bg-slate-950/60 border-slate-800' : 'bg-amber-950/20 border-amber-900/30'} flex justify-between items-center text-xs`}>
+              <div className={`p-4 rounded-xl border ${paid5Coaches.length >= league.leagueTiers.paid_tier_2.minCoaches ? 'bg-slate-950/60 border-slate-800' : 'bg-amber-950/20 border-amber-900/30'} flex justify-between items-center text-xs`}>
                 <div className="space-y-1">
                   <h4 className="font-extrabold text-white text-sm uppercase tracking-wider flex items-center gap-1.5">
                     <DollarSign className="w-4 h-4 text-amber-400" />
-                    <span>£5 Buy-In League</span>
+                    <span>{league.leagueTiers.paid_tier_2.name}</span>
                   </h4>
                   <p className="text-slate-400 font-medium">
-                    Min 5 coaches required. Registered: <strong className="text-white font-mono text-sm">{paid5Coaches.length}</strong>
+                    Min {league.leagueTiers.paid_tier_2.minCoaches} coaches required. Registered: <strong className="text-white font-mono text-sm">{paid5Coaches.length}</strong>
                   </p>
                 </div>
                 <div>
-                  {paid5Coaches.length >= 5 ? (
+                  {paid5Coaches.length >= league.leagueTiers.paid_tier_2.minCoaches ? (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
                       🟢 Active
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider">
-                      ⚠️ Pending ({5 - paid5Coaches.length} more)
+                      ⚠️ Pending ({league.leagueTiers.paid_tier_2.minCoaches - paid5Coaches.length} more)
                     </span>
                   )}
                 </div>
@@ -507,12 +514,12 @@ export default function AdminTab({
                 <thead className="sticky top-0 bg-slate-950 border-b border-slate-800 text-indigo-400 font-bold uppercase text-[10px] tracking-wider z-10">
                   <tr>
                     <th className="py-3 px-4">Coach Name</th>
-                    <th className="py-3 px-4 text-center">£2 League Buy-in</th>
-                    <th className="py-3 px-4 text-center">£5 League Buy-in</th>
+                    <th className="py-3 px-4 text-center">{league.leagueTiers.paid_tier_1.name}</th>
+                    <th className="py-3 px-4 text-center">{league.leagueTiers.paid_tier_2.name}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 font-medium bg-[#121316]/20">
-                  {LOCKED_TEAMS.filter(t => t.coach.toLowerCase().includes(coachSearchTerm.toLowerCase())).map(t => {
+                  {league.lockedTeams.filter(t => t.coach.toLowerCase().includes(coachSearchTerm.toLowerCase())).map(t => {
                     const isIn2 = paid2Coaches.includes(t.coach);
                     const isIn5 = paid5Coaches.includes(t.coach);
                     

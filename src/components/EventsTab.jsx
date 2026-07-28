@@ -1,14 +1,18 @@
 import React from 'react';
+import { useLeague } from '../context/LeagueContext';
 import { Calendar, Lock, CheckCircle2, Clock } from 'lucide-react';
 
 export default function EventsTab({ events }) {
+  const league = useLeague();
+  const eventList = events || league.events;
+
   return (
     <div className="space-y-6 font-sans">
       <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
         <div className="mb-6">
           <h2 className="font-display text-2xl font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
             <Calendar className="w-6 h-6 text-indigo-400" />
-            <span>2026 CrossFit Games Event Schedule</span>
+            <span>{league.competitionName} Event Schedule</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1 font-medium">
             Start times and point caps update dynamically via Admin Portal. Events lock automatically at scheduled start time.
@@ -16,9 +20,9 @@ export default function EventsTab({ events }) {
         </div>
 
         <div className="space-y-4">
-          {events.map(evt => {
+          {eventList.map(evt => {
             const isLocked = new Date() >= new Date(evt.startTime);
-            const is50Pt = evt.maxPoints === 50;
+            const is50Pt = evt.maxPoints === league.rules.lovelyTimeBonus100;
 
             return (
               <div

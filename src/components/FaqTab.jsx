@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useLeague } from '../context/LeagueContext';
 import { HelpCircle, Flame, Sparkles, RefreshCw, Shield, Lock, Award, DollarSign, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 
 export default function FaqTab() {
+  const league = useLeague();
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
@@ -12,18 +14,18 @@ export default function FaqTab() {
   const powerCardRules = [
     {
       icon: Flame,
-      title: 'Moving Day Card (1.5× Multiplier)',
-      desc: 'Multiplies one active athlete’s total earned points by 1.5× across an entire competition day. Useful on days with multiple events for high-volume scorers.'
+      title: `Moving Day Card (${league.rules.movingDayMultiplier}× Multiplier)`,
+      desc: `Multiplies one active athlete’s total earned points by ${league.rules.movingDayMultiplier}× across an entire competition day. Useful on days with multiple events for high-volume scorers.`
     },
     {
       icon: Sparkles,
-      title: 'Lovely Time Card (+50 / +25 Guaranteed Pts)',
-      desc: 'Guarantees points regardless of workout performance. Proportional to event cap: 100-point events yield +50 guaranteed points; 50-point events yield +25 guaranteed points.'
+      title: `Lovely Time Card (+${league.rules.lovelyTimeBonus100} / +${league.rules.lovelyTimeBonus50} Guaranteed Pts)`,
+      desc: `Guarantees points regardless of workout performance. Proportional to event cap: 100-point events yield +${league.rules.lovelyTimeBonus100} guaranteed points; 50-point events yield +${league.rules.lovelyTimeBonus50} guaranteed points.`
     },
     {
       icon: RefreshCw,
       title: 'Hot Tag Card (1-Event Swap)',
-      desc: 'Temporarily swaps an active squad athlete for an unpicked athlete of equal or lesser £ value for 1 specific event. Swap-in athlete must cost ≤ the athlete being swapped out.'
+      desc: `Temporarily swaps an active squad athlete for an unpicked athlete of equal or lesser ${league.rules.currency} value for 1 specific event. Swap-in athlete must cost ≤ the athlete being swapped out.`
     },
     {
       icon: Lock,
@@ -36,7 +38,7 @@ export default function FaqTab() {
     {
       cat: 'CARDS',
       q: 'How many Power Cards can a coach play per season?',
-      a: 'Each coach receives 3 RX+ Power Cards (Moving Day, Lovely Time, Hot Tag). Each card can be played once per season.'
+      a: `Each coach receives ${league.rules.maxPowerCards} RX+ Power Cards (Moving Day, Lovely Time, Hot Tag). Each card can be played once per season.`
     },
     {
       cat: 'CARDS',
@@ -46,17 +48,17 @@ export default function FaqTab() {
     {
       cat: 'ROSTER',
       q: 'What is the salary cap and roster size requirement?',
-      a: 'Each coach had an £11.5m budget to pick between 3 to 5 active athletes (Men & Women) from the official 60-competitor pool.'
+      a: `Each coach had an ${league.rules.currency}${league.rules.salaryCap}m budget to pick between ${league.rules.rosterMin} to ${league.rules.rosterMax} active athletes (Men & Women) from the official ${league.totalAthletes}-competitor pool.`
     },
     {
       cat: 'ROSTER',
       q: 'How does the Insurance Policy backup pick work?',
-      a: 'Each team designated 1 Insurance Athlete costing £2.0m or less. If an active squad member withdraws due to official injury or illness, the Insurance Athlete automatically replaces them from that event forward.'
+      a: `Each team designated 1 Insurance Athlete costing ${league.rules.currency}${league.rules.insuranceMaxPrice.toFixed(1)}m or less. If an active squad member withdraws due to official injury or illness, the Insurance Athlete automatically replaces them from that event forward.`
     },
     {
       cat: 'SCORING',
       q: 'How are event scores calculated?',
-      a: 'Points are awarded based on official CrossFit Games workout finishes (up to 100 pts for standard events, 50 pts for half-point workouts). Base event points are combined with Power Card boosts and bonus picks.'
+      a: `Points are awarded based on official ${league.competitionName} workout finishes (up to 100 pts for standard events, 50 pts for half-point workouts). Base event points are combined with Power Card boosts and bonus picks.`
     },
     {
       cat: 'SCORING',

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Shield, Calendar, BarChart3, Tag, Lock, ClipboardList, Timer, Flame, Sparkles, Menu, X, ChevronRight, HelpCircle } from 'lucide-react';
+import { useLeague } from '../context/LeagueContext';
 
 export default function Header({ activeTab, setActiveTab, events }) {
+  const league = useLeague();
   const [timerText, setTimerText] = useState('00d : 00h : 00m : 00s');
   const [nextEventTitle, setNextEventTitle] = useState('Detecting Next Event...');
   const [isCompleted, setIsCompleted] = useState(false);
@@ -16,7 +18,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
         .sort((a, b) => a.startObj - b.startObj);
 
       if (upcoming.length === 0) {
-        setNextEventTitle('All Scheduled Games Events Underway / Completed!');
+        setNextEventTitle('All Scheduled Events Underway / Completed!');
         setTimerText('00d : 00h : 00m : 00s');
         setIsCompleted(true);
         return;
@@ -43,8 +45,8 @@ export default function Header({ activeTab, setActiveTab, events }) {
   const primaryNavItems = [
     { id: 'dashboard', label: 'Coach Dashboard & Cards', icon: ClipboardList, badge: 'Dashboard' },
     { id: 'leaderboard', label: 'Live Score Leaderboard', icon: Trophy, badge: 'Leaderboard' },
-    { id: 'rosters', label: 'All 25 Locked Teams', icon: Lock, badge: 'Teams' },
-    { id: 'events', label: 'Games Event Feed', icon: Calendar, badge: 'Events' },
+    { id: 'rosters', label: `All ${league.totalCoaches} Locked Teams`, icon: Lock, badge: 'Teams' },
+    { id: 'events', label: 'Event Feed', icon: Calendar, badge: 'Events' },
   ];
 
   const moreNavItems = [
@@ -71,10 +73,10 @@ export default function Header({ activeTab, setActiveTab, events }) {
       <div className="bg-gradient-to-r from-[#121316] via-[#241a14] to-[#1a1b1f] border-b border-indigo-500/20 py-7 px-4 text-center shadow-2xl relative overflow-hidden">
         <div className="max-w-6xl mx-auto flex flex-col items-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
-            <Flame className="w-4 h-4 text-indigo-400" /> 2026 CrossFit Games Official Edition
+            <Flame className="w-4 h-4 text-indigo-400" /> {league.competitionName} — {league.tagline}
           </div>
           <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight uppercase stripe-gradient-text drop-shadow-sm">
-            NoBeef Fantasy League
+            {league.leagueName}
           </h1>
           <p className="text-slate-400 font-medium text-xs sm:text-sm mt-1.5 tracking-wider uppercase">
             Official Coach Dashboard • Live Leaderboard • RX+ Card Portal

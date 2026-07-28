@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LOCKED_TEAMS, ATHLETES_DATA } from '../data/seedData';
+import { useLeague } from '../context/LeagueContext';
 import { 
   Trophy, Award, Shield, Sparkles, Flame, Star, Zap, 
   ChevronDown, ChevronUp, Search, User, CheckCircle2, 
@@ -43,12 +43,13 @@ export default function LeaderboardTab({
   paid2Coaches = [],
   paid5Coaches = []
 }) {
+  const league = useLeague();
   const [expandedCoach, setExpandedCoach] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeLeague, setActiveLeague] = useState('FREE'); // 'FREE', 'PAID_2', 'PAID_5'
 
   // Real-time fantasy score calculator
-  const leaderboardData = LOCKED_TEAMS.map(team => {
+  const leaderboardData = league.lockedTeams.map(team => {
     let totalPoints = 0;
     let baseEventPoints = 0;
     let cardBonusPoints = 0;
@@ -59,7 +60,7 @@ export default function LeaderboardTab({
 
     // Track per-athlete breakdown
     const squadDetails = team.squad.map(athName => {
-      const athData = ATHLETES_DATA.find(a => a.name === athName) || { name: athName, gender: 'N/A', price: 0, rank: 'N/A' };
+      const athData = league.athletes.find(a => a.name === athName) || { name: athName, gender: 'N/A', price: 0, rank: 'N/A' };
       let athleteTotalPts = 0;
       const eventBreakdown = [];
 
@@ -93,17 +94,17 @@ export default function LeaderboardTab({
         // Check Lovely Time override card
         const lovelyTime = myCards.find(c => c.cardType === 'LOVELY_TIME' && c.eventId === evt.id && c.targetAthlete === athName);
         if (lovelyTime) {
-          const overridePts = evt.maxPoints === 50 ? 25 : 50;
+          const overridePts = evt.maxPoints === 50 ? league.rules.lovelyTimeBonus50 : league.rules.lovelyTimeBonus100;
           cardBonusOnThisEvt += (overridePts - pts);
           pts = overridePts;
         }
 
-        // Check Moving Day 1.5x multiplier
+        // Check Moving Day multiplier
         const movingDay = myCards.find(c => c.cardType === 'MOVING_DAY' && c.targetEventOrDay === evt.day && c.targetAthlete === athName);
         if (movingDay) {
-          const extraPts = pts * 0.5;
+          const extraPts = pts * (league.rules.movingDayMultiplier - 1);
           cardBonusOnThisEvt += extraPts;
-          pts = pts * 1.5;
+          pts = pts * league.rules.movingDayMultiplier;
         }
 
         athleteTotalPts += pts;
@@ -168,7 +169,13 @@ export default function LeaderboardTab({
     return true; // FREE includes all 25 coaches
   });
 
-  const isLeagueActive = activeLeague === 'FREE' || leagueCoaches.length >= 5;
+  const getMinCoaches = () => {
+    if (activeLeague === 'PAID_2') return league.leagueTiers.paid_tier_1.minCoaches;
+    if (activeLeague === 'PAID_5') return league.leagueTiers.paid_tier_2.minCoaches;
+    return 0;
+  };
+
+  const isLeagueActive = activeLeague === 'FREE' || leagueCoaches.length >= getMinCoaches();
 
   // Filter leaderboard by search term
   const filteredLeaderboard = leagueCoaches.filter(item => 
@@ -233,10 +240,10 @@ export default function LeaderboardTab({
         >
           <span className="flex items-center gap-2">
             <Trophy className="w-4 h-4 text-indigo-400" />
-            <span>🏆 Free League</span>
+            <span>🏆 {league.leagueTiers.free.name}</span>
           </span>
           <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${activeLeague === 'FREE' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'}`}>
-            25 Coaches
+            {league.totalCoaches} Coaches
           </span>
         </button>
 
@@ -253,11 +260,11 @@ export default function LeaderboardTab({
         >
           <span className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-slate-300" />
-            <span>🥈 £2 Buy-In League</span>
+            <span>🥈 {league.leagueTiers.paid_tier_1.name}</span>
           </span>
           <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${activeLeague === 'PAID_2' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'} flex items-center gap-1.5`}>
             <span>{paid2Coaches.length} Coaches</span>
-            <span className={`w-2 h-2 rounded-full ${paid2Coaches.length >= 5 ? 'bg-emerald-500' : 'bg-amber-500'}`} title={paid2Coaches.length >= 5 ? "Active" : "Pending activation (<5 coaches)"} />
+            <span className={`w-2 h-2 rounded-full ${paid2Coaches.length >= league.leagueTiers.paid_tier_1.minCoaches ? 'bg-emerald-500' : 'bg-amber-500'}`} title={paid2Coaches.length >= league.leagueTiers.paid_tier_1.minCoaches ? "Active" : `Pending activation (<${league.leagueTiers.paid_tier_1.minCoaches} coaches)`} />
           </span>
         </button>
 
@@ -274,11 +281,11 @@ export default function LeaderboardTab({
         >
           <span className="flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-amber-400" />
-            <span>🥇 £5 Buy-In League</span>
+            <span>🥇 {league.leagueTiers.paid_tier_2.name}</span>
           </span>
           <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${activeLeague === 'PAID_5' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'} flex items-center gap-1.5`}>
             <span>{paid5Coaches.length} Coaches</span>
-            <span className={`w-2 h-2 rounded-full ${paid5Coaches.length >= 5 ? 'bg-emerald-500' : 'bg-amber-500'}`} title={paid5Coaches.length >= 5 ? "Active" : "Pending activation (<5 coaches)"} />
+            <span className={`w-2 h-2 rounded-full ${paid5Coaches.length >= league.leagueTiers.paid_tier_2.minCoaches ? 'bg-emerald-500' : 'bg-amber-500'}`} title={paid5Coaches.length >= league.leagueTiers.paid_tier_2.minCoaches ? "Active" : `Pending activation (<${league.leagueTiers.paid_tier_2.minCoaches} coaches)`} />
           </span>
         </button>
       </div>
@@ -291,7 +298,7 @@ export default function LeaderboardTab({
             <div className="pt-4 pb-2">
               <div className="text-center mb-6">
                 <span className="uppercase text-[11px] font-bold tracking-widest text-indigo-300 bg-indigo-500/10 px-4 py-1.5 rounded-full border border-indigo-500/30">
-                  {activeLeague === 'FREE' ? 'Free League' : activeLeague === 'PAID_2' ? '£2 League' : '£5 League'} Podium
+                  {activeLeague === 'FREE' ? league.leagueTiers.free.name : activeLeague === 'PAID_2' ? league.leagueTiers.paid_tier_1.name : league.leagueTiers.paid_tier_2.name} Podium
                 </span>
               </div>
 
@@ -322,10 +329,10 @@ export default function LeaderboardTab({
                   {/* League Badges */}
                   <div className="flex items-center justify-center gap-1.5 mt-1">
                     {paid2Coaches.includes(top2.coach) && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">£2</span>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_1.price}</span>
                     )}
                     {paid5Coaches.includes(top2.coach) && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">£5</span>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_2.price}</span>
                     )}
                   </div>
                   
@@ -338,7 +345,7 @@ export default function LeaderboardTab({
 
                   <div className="mt-3 pt-2 border-t border-slate-800 flex justify-center items-center text-[10px] md:text-xs text-indigo-400 font-bold gap-1 uppercase">
                     <Zap className="w-3 h-3 text-indigo-400" />
-                    <span>{top2.cardsCount}/3 Cards</span>
+                    <span>{top2.cardsCount}/{league.rules.maxPowerCards} Cards</span>
                   </div>
                 </div>
 
@@ -373,10 +380,10 @@ export default function LeaderboardTab({
                   {/* League Badges */}
                   <div className="flex items-center justify-center gap-1.5 mt-1">
                     {paid2Coaches.includes(top1.coach) && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">£2</span>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_1.price}</span>
                     )}
                     {paid5Coaches.includes(top1.coach) && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">£5</span>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_2.price}</span>
                     )}
                   </div>
 
@@ -389,7 +396,7 @@ export default function LeaderboardTab({
 
                   <div className="mt-3 pt-2 border-t border-indigo-500/30 flex justify-center items-center text-xs text-indigo-400 font-bold gap-1 uppercase">
                     <Zap className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>{top1.cardsCount}/3 Cards</span>
+                    <span>{top1.cardsCount}/{league.rules.maxPowerCards} Cards</span>
                   </div>
                 </div>
 
@@ -419,10 +426,10 @@ export default function LeaderboardTab({
                   {/* League Badges */}
                   <div className="flex items-center justify-center gap-1.5 mt-1">
                     {paid2Coaches.includes(top3.coach) && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">£2</span>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_1.price}</span>
                     )}
                     {paid5Coaches.includes(top3.coach) && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">£5</span>
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">{league.rules.currency}{league.leagueTiers.paid_tier_2.price}</span>
                     )}
                   </div>
 
@@ -435,7 +442,7 @@ export default function LeaderboardTab({
 
                   <div className="mt-3 pt-2 border-t border-slate-800 flex justify-center items-center text-[10px] md:text-xs text-indigo-400 font-bold gap-1 uppercase">
                     <Zap className="w-3 h-3 text-indigo-400" />
-                    <span>{top3.cardsCount}/3 Cards</span>
+                    <span>{top3.cardsCount}/{league.rules.maxPowerCards} Cards</span>
                   </div>
                 </div>
               </div>
@@ -493,12 +500,12 @@ export default function LeaderboardTab({
                             <div className="flex items-center gap-1">
                               {paid2Coaches.includes(row.coach) && (
                                 <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 shadow-sm font-mono leading-none">
-                                  🥈 £2
+                                  🥈 {league.rules.currency}{league.leagueTiers.paid_tier_1.price}
                                 </span>
                               )}
                               {paid5Coaches.includes(row.coach) && (
                                 <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm font-mono leading-none">
-                                  🥇 £5
+                                  🥇 {league.rules.currency}{league.leagueTiers.paid_tier_2.price}
                                 </span>
                               )}
                             </div>
@@ -523,7 +530,7 @@ export default function LeaderboardTab({
                           </div>
                           <div className="text-[10px] text-indigo-400 font-bold flex items-center justify-end gap-1 uppercase">
                             <Zap className="w-3 h-3 text-indigo-400" />
-                            <span>{row.cardsCount}/3</span>
+                            <span>{row.cardsCount}/{league.rules.maxPowerCards}</span>
                           </div>
                         </div>
 
@@ -576,7 +583,7 @@ export default function LeaderboardTab({
                                     <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5 font-semibold">
                                       <span>{ath.data.gender}</span>
                                       <span>•</span>
-                                      <span className="font-mono">£{ath.data.price}m</span>
+                                      <span className="font-mono">{league.rules.currency}{ath.data.price}m</span>
                                       <span>•</span>
                                       <span className="text-indigo-400 font-semibold">{ath.data.rank}</span>
                                     </div>
@@ -618,7 +625,7 @@ export default function LeaderboardTab({
                         <div>
                           <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3 flex items-center gap-1.5">
                             <Zap className="w-4 h-4 text-indigo-400" />
-                            <span>Submitted Power Cards ({row.myCards.length}/3)</span>
+                            <span>Submitted Power Cards ({row.myCards.length}/{league.rules.maxPowerCards})</span>
                           </h4>
 
                           {row.myCards.length === 0 ? (
@@ -662,10 +669,10 @@ export default function LeaderboardTab({
           </div>
           <div>
             <h3 className="font-display text-xl font-extrabold text-white uppercase tracking-wider">
-              {activeLeague === 'PAID_2' ? '£2' : '£5'} League Pending Activation
+              {activeLeague === 'PAID_2' ? league.leagueTiers.paid_tier_1.name : league.leagueTiers.paid_tier_2.name} Pending Activation
             </h3>
             <p className="text-xs text-slate-400 mt-2 max-w-md mx-auto leading-relaxed">
-              This league is currently inactive. It requires a minimum of <strong className="text-white">5 registered coaches</strong> to calculate relative standings. 
+              This league is currently inactive. It requires a minimum of <strong className="text-white">{getMinCoaches()} registered coaches</strong> to calculate relative standings. 
               Currently, there are only <strong className="text-amber-400 font-mono text-sm">{leagueCoaches.length}</strong> coaches registered.
             </p>
           </div>
@@ -673,7 +680,7 @@ export default function LeaderboardTab({
           <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 text-xs font-semibold text-slate-300 text-left">
             <div className="flex justify-between items-center pb-2.5 border-b border-slate-800/80 mb-2.5">
               <span className="text-slate-400 uppercase tracking-wider text-[10px]">Registered Coaches ({leagueCoaches.length})</span>
-              <span className="text-amber-400 font-mono font-bold">{leagueCoaches.length} / 5</span>
+              <span className="text-amber-400 font-mono font-bold">{leagueCoaches.length} / {getMinCoaches()}</span>
             </div>
             {leagueCoaches.length > 0 ? (
               <div className="flex flex-wrap gap-2 justify-start">

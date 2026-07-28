@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ATHLETES_DATA, LOCKED_TEAMS, COMPETITION_DAYS } from '../data/seedData';
+import { useLeague, getAthletePrice as getAthletePriceHelper } from '../context/LeagueContext';
 import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList } from 'lucide-react';
 
 export default function DashboardTab({ 
@@ -10,11 +10,12 @@ export default function DashboardTab({
   paid2Coaches = [],
   paid5Coaches = []
 }) {
+  const league = useLeague();
   const [selectedCoach, setSelectedCoach] = useState('');
   
   // Card Form Inputs
   const [mdAthlete, setMdAthlete] = useState('');
-  const [mdDay, setMdDay] = useState(COMPETITION_DAYS[0]);
+  const [mdDay, setMdDay] = useState(league.competitionDays[0]);
 
   const [ltEventId, setLtEventId] = useState(events[0]?.id || '');
   const [ltAthlete, setLtAthlete] = useState('');
@@ -23,17 +24,17 @@ export default function DashboardTab({
   const [htTarget, setHtTarget] = useState('');
   const [htReplacement, setHtReplacement] = useState('');
 
-  const currentTeam = LOCKED_TEAMS.find(t => t.coach === selectedCoach);
+  const currentTeam = league.lockedTeams.find(t => t.coach === selectedCoach);
 
   const getAthletePrice = (name) => {
     const clean = name.replace('*', '').trim();
-    const ath = ATHLETES_DATA.find(a => a.name.replace('*', '').trim() === clean);
+    const ath = league.athletes.find(a => a.name.replace('*', '').trim() === clean);
     return ath ? ath.price : 0;
   };
 
   const getAthleteGender = (name) => {
     const clean = name.replace('*', '').trim();
-    const ath = ATHLETES_DATA.find(a => a.name.replace('*', '').trim() === clean);
+    const ath = league.athletes.find(a => a.name.replace('*', '').trim() === clean);
     return ath ? ath.gender : '';
   };
 
@@ -47,7 +48,7 @@ export default function DashboardTab({
 
   // Filter valid Hot Tag replacement options (equal or lesser price, not in coach's squad)
   const targetPrice = htTarget ? getAthletePrice(htTarget) : 0;
-  const validReplacements = ATHLETES_DATA.filter(ath => {
+  const validReplacements = league.athletes.filter(ath => {
     if (!currentTeam) return false;
     const isAlreadyInSquad = currentTeam.squad.includes(ath.name);
     return !isAlreadyInSquad && ath.price <= targetPrice;
@@ -55,7 +56,7 @@ export default function DashboardTab({
 
   const handleCoachSelect = (coachName) => {
     setSelectedCoach(coachName);
-    const team = LOCKED_TEAMS.find(t => t.coach === coachName);
+    const team = league.lockedTeams.find(t => t.coach === coachName);
     if (team && team.squad.length > 0) {
       setMdAthlete(team.squad[0]);
       setLtAthlete(team.squad[0]);
@@ -66,7 +67,7 @@ export default function DashboardTab({
   const handleTargetChangeForHotTag = (targetName) => {
     setHtTarget(targetName);
     const price = getAthletePrice(targetName);
-    const replacements = ATHLETES_DATA.filter(ath => {
+    const replacements = league.athletes.filter(ath => {
       if (!currentTeam) return false;
       return !currentTeam.squad.includes(ath.name) && ath.price <= price;
     });
@@ -158,7 +159,7 @@ export default function DashboardTab({
               className="w-full bg-[#121316]/90 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 font-semibold"
             >
               <option value="">-- Choose Your Coach Profile --</option>
-              {LOCKED_TEAMS.map(t => (
+              {league.lockedTeams.map(t => (
                 <option key={t.coach} value={t.coach}>
                   {t.coach} ({t.squad.length} Athletes)
                 </option>
@@ -171,12 +172,12 @@ export default function DashboardTab({
               <div className="flex justify-between items-center mb-1">
                 <span className="font-extrabold text-white text-base uppercase">{currentTeam.coach} Squad</span>
                 <span className="text-indigo-300 font-bold bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-400/30 font-mono">
-                  Spent: £{totalSpent.toFixed(1)}m / £11.5m
+                  Spent: {league.rules.currency}{totalSpent.toFixed(1)}m / {league.rules.currency}{league.rules.salaryCap}m
                 </span>
               </div>
               <div className="text-slate-300 mt-2 flex items-center gap-1">
                 <Shield className="w-4 h-4 text-emerald-400 inline" />
-                <span>Insurance Pick: <strong className="text-emerald-400">{currentTeam.ins}</strong> (£{getAthletePrice(currentTeam.ins)}m)</span>
+                <span>Insurance Pick: <strong className="text-emerald-400">{currentTeam.ins}</strong> ({league.rules.currency}{getAthletePrice(currentTeam.ins)}m)</span>
               </div>
               <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                 <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Leagues:</span>
@@ -185,19 +186,19 @@ export default function DashboardTab({
                 </span>
                 {paid2Coaches.includes(currentTeam.coach) && (
                   <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 uppercase tracking-wide font-mono">
-                    🥈 £2 League
+                    🥈 {league.rules.currency}{league.leagueTiers.paid_tier_1.price} League
                   </span>
                 )}
                 {paid5Coaches.includes(currentTeam.coach) && (
                   <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide font-mono">
-                    🥇 £5 League
+                    🥇 {league.rules.currency}{league.leagueTiers.paid_tier_2.price} League
                   </span>
                 )}
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {currentTeam.squad.map(ath => (
                   <span key={ath} className="bg-slate-900/90 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg text-xs font-semibold">
-                    {ath} <span className="text-indigo-400 font-mono ml-1">£{getAthletePrice(ath)}m</span>
+                    {ath} <span className="text-indigo-400 font-mono ml-1">{league.rules.currency}{getAthletePrice(ath)}m</span>
                   </span>
                 ))}
               </div>
@@ -216,10 +217,10 @@ export default function DashboardTab({
               <div>
                 <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-xl mb-1 uppercase">
                   <Flame className="w-5 h-5 text-indigo-400" />
-                  <span>Moving Day (1.5×)</span>
+                  <span>Moving Day ({league.rules.movingDayMultiplier}×)</span>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">
-                  Multiplies one active athlete's points by 1.5× across an entire competition day.
+                  Multiplies one active athlete's points by {league.rules.movingDayMultiplier}× across an entire competition day.
                 </p>
 
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
@@ -229,7 +230,7 @@ export default function DashboardTab({
                   className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
                 >
                   {currentTeam.squad.map(ath => (
-                    <option key={ath} value={ath}>{ath} (£{getAthletePrice(ath)}m)</option>
+                    <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
                   ))}
                 </select>
 
@@ -239,7 +240,7 @@ export default function DashboardTab({
                   onChange={(e) => setMdDay(e.target.value)}
                   className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
                 >
-                  {COMPETITION_DAYS.map(day => (
+                  {league.competitionDays.map(day => (
                     <option key={day} value={day}>{day}</option>
                   ))}
                 </select>
@@ -258,7 +259,7 @@ export default function DashboardTab({
               <div>
                 <div className="flex items-center gap-2 text-purple-400 font-extrabold text-xl mb-1 uppercase">
                   <Sparkles className="w-5 h-5 text-purple-400" />
-                  <span>Lovely Time (+50 / +25)</span>
+                  <span>Lovely Time (+{league.rules.lovelyTimeBonus100} / +{league.rules.lovelyTimeBonus50})</span>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">
                   Guarantees points regardless of workout performance. Proportional to event cap.
@@ -278,7 +279,7 @@ export default function DashboardTab({
                 </select>
 
                 <div className={`text-xs font-bold p-2 rounded-lg mb-3 ${isLovelyTime50Pt ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-slate-800 text-slate-200 border border-slate-700'}`}>
-                  {isLovelyTime50Pt ? '⚠️ 50-Point Event Yields: +25 Guaranteed Pts' : '✨ 100-Point Event Yields: +50 Guaranteed Pts'}
+                  {isLovelyTime50Pt ? `⚠️ 50-Point Event Yields: +${league.rules.lovelyTimeBonus50} Guaranteed Pts` : `✨ 100-Point Event Yields: +${league.rules.lovelyTimeBonus100} Guaranteed Pts`}
                 </div>
 
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
@@ -288,7 +289,7 @@ export default function DashboardTab({
                   className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
                 >
                   {currentTeam.squad.map(ath => (
-                    <option key={ath} value={ath}>{ath} (£{getAthletePrice(ath)}m)</option>
+                    <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
                   ))}
                 </select>
               </div>
@@ -309,7 +310,7 @@ export default function DashboardTab({
                   <span>Hot Tag (1-Event Swap)</span>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">
-                  Temporarily swap an active athlete for an unpicked athlete of equal or lesser £ value.
+                  Temporarily swap an active athlete for an unpicked athlete of equal or lesser {league.rules.currency} value.
                 </p>
 
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
@@ -332,11 +333,11 @@ export default function DashboardTab({
                   className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
                 >
                   {currentTeam.squad.map(ath => (
-                    <option key={ath} value={ath}>{ath} (£{getAthletePrice(ath)}m)</option>
+                    <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
                   ))}
                 </select>
 
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Replacement IN (≤ £{targetPrice}m):</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Replacement IN (≤ {league.rules.currency}{targetPrice}m):</label>
                 <select
                   value={htReplacement}
                   onChange={(e) => setHtReplacement(e.target.value)}
@@ -344,7 +345,7 @@ export default function DashboardTab({
                 >
                   {validReplacements.map(ath => (
                     <option key={ath.name} value={ath.name}>
-                      {ath.name} (£{ath.price}m - {ath.gender})
+                      {ath.name} ({league.rules.currency}{ath.price}m - {ath.gender})
                     </option>
                   ))}
                 </select>

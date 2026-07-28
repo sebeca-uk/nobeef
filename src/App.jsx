@@ -8,6 +8,7 @@ import AnalyticsTab from './components/AnalyticsTab';
 import PricingTab from './components/PricingTab';
 import FaqTab from './components/FaqTab';
 import AdminTab from './components/AdminTab';
+import { useLeague } from './context/LeagueContext';
 import { Lock, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 
 import {
@@ -28,11 +29,12 @@ import {
 } from './firebase';
 
 export default function App() {
+  const league = useLeague();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   // Site Access Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('nobeef_site_access') === 'true';
+    return localStorage.getItem(`${league.id}_site_access`) === 'true';
   });
   const [sitePassword, setSitePassword] = useState('');
   const [authError, setAuthError] = useState(false);
@@ -64,12 +66,10 @@ export default function App() {
   const handleSiteLogin = (e) => {
     e.preventDefault();
     const cleanPw = sitePassword.trim().toLowerCase();
-    const expectedSitePw = (import.meta.env.VITE_SITE_PASSWORD || 'nobeef').toLowerCase();
-    const expectedAdminPw = (import.meta.env.VITE_ADMIN_PASSWORD || 'nobeef2026').toLowerCase();
-    if (cleanPw === expectedSitePw || cleanPw === expectedAdminPw) {
+    if (cleanPw === league.sitePassword || cleanPw === league.adminPassword) {
       setIsAuthenticated(true);
       setAuthError(false);
-      localStorage.setItem('nobeef_site_access', 'true');
+      localStorage.setItem(`${league.id}_site_access`, 'true');
     } else {
       setAuthError(true);
     }
@@ -135,8 +135,11 @@ export default function App() {
               Private Fantasy Portal
             </span>
             <h1 className="font-display text-3xl font-black text-white mt-3 tracking-tight uppercase">
-              NoBeef CrossFit Games Fantasy 2026
+              {league.leagueName}
             </h1>
+            <p className="text-sm text-slate-300 font-semibold mt-1">
+              {league.competitionName} — {league.tagline}
+            </p>
             <p className="text-xs text-slate-400 mt-2">
               Please enter the site password to view rosters, submit Power Cards, and access real-time leaderboards.
             </p>
@@ -176,7 +179,7 @@ export default function App() {
 
           <div className="pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-            <span>Official NoBeef Fantasy League Portal</span>
+            <span>{league.leagueName} — {league.gymName} Official Portal</span>
           </div>
         </div>
       </div>
@@ -247,10 +250,10 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-16 text-center text-xs text-slate-500 border-t border-slate-900 pt-6 px-4">
         <p className="font-semibold text-slate-400">
-          NoBeef CrossFit Games Fantasy League 2026 — Official Portal
+          {league.leagueName} — {league.competitionName} — {league.tagline}
         </p>
         <p className="mt-1 text-slate-500">
-          Organizers: Team Sim & JJ | Locked Deadline: July 20, 2026
+          Organizers: {league.organizers} | Locked Deadline: {league.lockDeadline}
         </p>
       </footer>
     </div>

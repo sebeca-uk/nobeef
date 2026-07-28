@@ -1,9 +1,10 @@
 import React from 'react';
-import { DRAFT_ANALYTICS } from '../data/seedData';
+import { useLeague } from '../context/LeagueContext';
 import { BarChart3, Flame, Users, Shield, Trophy, PieChart, TrendingUp } from 'lucide-react';
 
 export default function AnalyticsTab() {
-  const stats = DRAFT_ANALYTICS;
+  const league = useLeague();
+  const stats = league.draftAnalytics;
 
   return (
     <div className="space-y-6 font-sans">
@@ -14,7 +15,7 @@ export default function AnalyticsTab() {
             <span>Official Draft Snapshot & League Analytics</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1 font-medium">
-            Consensus trends, pick distributions, and draft insights across all 25 coach submissions.
+            Consensus trends, pick distributions, and draft insights across all {league.totalCoaches} coach submissions.
           </p>
         </div>
 
@@ -27,9 +28,9 @@ export default function AnalyticsTab() {
             </div>
             <div className="text-2xl font-black text-white uppercase">{stats.mostPicked.name}</div>
             <div className="text-xs font-bold text-indigo-300 mt-1 font-mono">
-              {stats.mostPicked.count} of 25 Coaches ({stats.mostPicked.percentage}%)
+              {stats.mostPicked.count} of {league.totalCoaches} Coaches ({stats.mostPicked.percentage}%)
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 font-medium">Runaway #1 overall pick across all 25 teams!</p>
+            <p className="text-[11px] text-slate-400 mt-2 font-medium">Runaway #1 overall pick across all {league.totalCoaches} teams!</p>
           </div>
 
           {/* Stat 2 */}
@@ -47,7 +48,7 @@ export default function AnalyticsTab() {
             <div className="inline-flex items-center gap-1 text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1">
               <PieChart className="w-4 h-4 text-cyan-400" /> Untouched Athletes
             </div>
-            <div className="text-2xl font-black text-cyan-400 font-mono">{stats.untouchedAthletesCount} of 60</div>
+            <div className="text-2xl font-black text-cyan-400 font-mono">{stats.untouchedAthletesCount} of {league.totalAthletes}</div>
             <div className="text-xs font-bold text-cyan-300 mt-1 uppercase">40% Never Drafted</div>
             <p className="text-[11px] text-slate-400 mt-2 font-medium">Includes Vellner, Khrennikov, Lawson, & Kerstetter.</p>
           </div>
