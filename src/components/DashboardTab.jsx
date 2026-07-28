@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLeague, getAthletePrice as getAthletePriceHelper } from '../context/LeagueContext';
-import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList } from 'lucide-react';
+import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList, Zap, Award } from 'lucide-react';
 
 export default function DashboardTab({ 
   events, 
@@ -23,6 +23,15 @@ export default function DashboardTab({
   const [htEventId, setHtEventId] = useState(events[0]?.id || '');
   const [htTarget, setHtTarget] = useState('');
   const [htReplacement, setHtReplacement] = useState('');
+
+  const [ttEventId, setTtEventId] = useState(events[0]?.id || '');
+  const [ttAthlete, setTtAthlete] = useState('');
+
+  const [snEventId, setSnEventId] = useState(events[0]?.id || '');
+  const [snAthlete, setSnAthlete] = useState('');
+
+  const [udEventId, setUdEventId] = useState(events[0]?.id || '');
+  const [udAthlete, setUdAthlete] = useState('');
 
   const currentTeam = league.lockedTeams.find(t => t.coach === selectedCoach);
 
@@ -61,6 +70,9 @@ export default function DashboardTab({
       setMdAthlete(team.squad[0]);
       setLtAthlete(team.squad[0]);
       setHtTarget(team.squad[0]);
+      setTtAthlete(team.squad[0]);
+      setSnAthlete(team.squad[0]);
+      setUdAthlete(team.squad[0]);
     }
   };
 
@@ -112,6 +124,45 @@ export default function DashboardTab({
       // Lock check
       if (evt && new Date() >= new Date(evt.startTime)) {
         return alert(`🔒 LOCKED! Event "${evt.name}" has already begun.`);
+      }
+    } else if (cardType === 'TRIPLE_THREAT') {
+      if (!ttEventId || !ttAthlete) return alert('Please select target event and athlete for Triple Threat!');
+      eventId = ttEventId;
+      const evt = events.find(e => e.id === eventId);
+      targetEventOrDay = evt ? evt.name : eventId;
+      targetAthlete = ttAthlete;
+
+      // Lock check
+      if (evt && new Date() >= new Date(evt.startTime)) {
+        return alert(`🔒 LOCKED! Event "${evt.name}" has already begun.`);
+      }
+    } else if (cardType === 'SAFETY_NET') {
+      if (!snEventId || !snAthlete) return alert('Please select target event and athlete for Safety Net!');
+      eventId = snEventId;
+      const evt = events.find(e => e.id === eventId);
+      targetEventOrDay = evt ? evt.name : eventId;
+      targetAthlete = snAthlete;
+
+      // Lock check
+      if (evt && new Date() >= new Date(evt.startTime)) {
+        return alert(`🔒 LOCKED! Event "${evt.name}" has already begun.`);
+      }
+    } else if (cardType === 'UNDERDOG') {
+      if (!udEventId || !udAthlete) return alert('Please select target event and athlete for Underdog!');
+      eventId = udEventId;
+      const evt = events.find(e => e.id === eventId);
+      targetEventOrDay = evt ? evt.name : eventId;
+      targetAthlete = udAthlete;
+
+      // Lock check
+      if (evt && new Date() >= new Date(evt.startTime)) {
+        return alert(`🔒 LOCKED! Event "${evt.name}" has already begun.`);
+      }
+
+      // Check price eligibility
+      const athletePrice = getAthletePrice(udAthlete);
+      if (athletePrice > (league.rules.insuranceMaxPrice || 2.0)) {
+        return alert(`⚠️ ELIGIBILITY ERROR: Athlete must cost ≤ ${league.rules.currency}${league.rules.insuranceMaxPrice || 2.0}m to be eligible for Underdog!`);
       }
     }
 
@@ -210,154 +261,304 @@ export default function DashboardTab({
       {selectedCoach && (
         <>
           {/* Cards Assignment Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* MOVING DAY CARD */}
-            <div className="glass-card rounded-2xl p-5 border border-indigo-500/30 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-xl mb-1 uppercase">
-                  <Flame className="w-5 h-5 text-indigo-400" />
-                  <span>Moving Day ({league.rules.movingDayMultiplier}×)</span>
+            {league.rules.powerCards?.includes('MOVING_DAY') && (
+              <div className="glass-card rounded-2xl p-5 border border-indigo-500/30 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-xl mb-1 uppercase">
+                    <Flame className="w-5 h-5 text-indigo-400" />
+                    <span>Moving Day ({league.rules.movingDayMultiplier}×)</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Multiplies one active athlete's points by {league.rules.movingDayMultiplier}× across an entire competition day.
+                  </p>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
+                  <select
+                    value={mdAthlete}
+                    onChange={(e) => setMdAthlete(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  >
+                    {currentTeam.squad.map(ath => (
+                      <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
+                    ))}
+                  </select>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Competition Day:</label>
+                  <select
+                    value={mdDay}
+                    onChange={(e) => setMdDay(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  >
+                    {league.competitionDays.map(day => (
+                      <option key={day} value={day}>{day}</option>
+                    ))}
+                  </select>
                 </div>
-                <p className="text-xs text-slate-400 mb-4">
-                  Multiplies one active athlete's points by {league.rules.movingDayMultiplier}× across an entire competition day.
-                </p>
 
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
-                <select
-                  value={mdAthlete}
-                  onChange={(e) => setMdAthlete(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                <button
+                  onClick={() => submitCard('MOVING_DAY')}
+                  className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-indigo-500/25 uppercase tracking-wider"
                 >
-                  {currentTeam.squad.map(ath => (
-                    <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Competition Day:</label>
-                <select
-                  value={mdDay}
-                  onChange={(e) => setMdDay(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
-                >
-                  {league.competitionDays.map(day => (
-                    <option key={day} value={day}>{day}</option>
-                  ))}
-                </select>
+                  Save Moving Day Card
+                </button>
               </div>
-
-              <button
-                onClick={() => submitCard('MOVING_DAY')}
-                className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-indigo-500/25 uppercase tracking-wider"
-              >
-                Save Moving Day Card
-              </button>
-            </div>
+            )}
 
             {/* LOVELY TIME CARD */}
-            <div className="glass-card rounded-2xl p-5 border border-purple-500/30 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-purple-400 font-extrabold text-xl mb-1 uppercase">
-                  <Sparkles className="w-5 h-5 text-purple-400" />
-                  <span>Lovely Time (+{league.rules.lovelyTimeBonus100} / +{league.rules.lovelyTimeBonus50})</span>
+            {league.rules.powerCards?.includes('LOVELY_TIME') && (
+              <div className="glass-card rounded-2xl p-5 border border-purple-500/30 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-purple-400 font-extrabold text-xl mb-1 uppercase">
+                    <Sparkles className="w-5 h-5 text-purple-400" />
+                    <span>Lovely Time (+{league.rules.lovelyTimeBonus100} / +{league.rules.lovelyTimeBonus50})</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Guarantees points regardless of workout performance. Proportional to event cap.
+                  </p>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
+                  <select
+                    value={ltEventId}
+                    onChange={(e) => setLtEventId(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-2 font-medium"
+                  >
+                    {events.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.name} ({evt.maxPoints} Pts)
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className={`text-xs font-bold p-2 rounded-lg mb-3 ${isLovelyTime50Pt ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-slate-800 text-slate-200 border border-slate-700'}`}>
+                    {isLovelyTime50Pt ? `⚠️ 50-Point Event Yields: +${league.rules.lovelyTimeBonus50} Guaranteed Pts` : `✨ 100-Point Event Yields: +${league.rules.lovelyTimeBonus100} Guaranteed Pts`}
+                  </div>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
+                  <select
+                    value={ltAthlete}
+                    onChange={(e) => setLtAthlete(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  >
+                    {currentTeam.squad.map(ath => (
+                      <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
+                    ))}
+                  </select>
                 </div>
-                <p className="text-xs text-slate-400 mb-4">
-                  Guarantees points regardless of workout performance. Proportional to event cap.
-                </p>
 
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
-                <select
-                  value={ltEventId}
-                  onChange={(e) => setLtEventId(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-2 font-medium"
+                <button
+                  onClick={() => submitCard('LOVELY_TIME')}
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm border border-purple-500/40 transition-all uppercase tracking-wider shadow-lg shadow-purple-500/25"
                 >
-                  {events.map(evt => (
-                    <option key={evt.id} value={evt.id}>
-                      {evt.name} ({evt.maxPoints} Pts)
-                    </option>
-                  ))}
-                </select>
-
-                <div className={`text-xs font-bold p-2 rounded-lg mb-3 ${isLovelyTime50Pt ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-slate-800 text-slate-200 border border-slate-700'}`}>
-                  {isLovelyTime50Pt ? `⚠️ 50-Point Event Yields: +${league.rules.lovelyTimeBonus50} Guaranteed Pts` : `✨ 100-Point Event Yields: +${league.rules.lovelyTimeBonus100} Guaranteed Pts`}
-                </div>
-
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
-                <select
-                  value={ltAthlete}
-                  onChange={(e) => setLtAthlete(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
-                >
-                  {currentTeam.squad.map(ath => (
-                    <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
-                  ))}
-                </select>
+                  Save Lovely Time Card
+                </button>
               </div>
-
-              <button
-                onClick={() => submitCard('LOVELY_TIME')}
-                className="w-full bg-purple-600 hover:bg-purple-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm border border-purple-500/40 transition-all uppercase tracking-wider shadow-lg shadow-purple-500/25"
-              >
-                Save Lovely Time Card
-              </button>
-            </div>
+            )}
 
             {/* HOT TAG CARD */}
-            <div className="glass-card rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-cyan-400 font-extrabold text-xl mb-1 uppercase">
-                  <RefreshCw className="w-5 h-5 text-cyan-400" />
-                  <span>Hot Tag (1-Event Swap)</span>
+            {league.rules.powerCards?.includes('HOT_TAG') && (
+              <div className="glass-card rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-cyan-400 font-extrabold text-xl mb-1 uppercase">
+                    <RefreshCw className="w-5 h-5 text-cyan-400" />
+                    <span>Hot Tag (1-Event Swap)</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Temporarily swap an active athlete for an unpicked athlete of equal or lesser {league.rules.currency} value.
+                  </p>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
+                  <select
+                    value={htEventId}
+                    onChange={(e) => setHtEventId(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  >
+                    {events.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.name} ({evt.maxPoints} Pts)
+                      </option>
+                    ))}
+                  </select>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Swap OUT (Active):</label>
+                  <select
+                    value={htTarget}
+                    onChange={(e) => handleTargetChangeForHotTag(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  >
+                    {currentTeam.squad.map(ath => (
+                      <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
+                    ))}
+                  </select>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Replacement IN (≤ {league.rules.currency}{targetPrice}m):</label>
+                  <select
+                    value={htReplacement}
+                    onChange={(e) => setHtReplacement(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  >
+                    {validReplacements.map(ath => (
+                      <option key={ath.name} value={ath.name}>
+                        {ath.name} ({league.rules.currency}{ath.price}m - {ath.gender})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <p className="text-xs text-slate-400 mb-4">
-                  Temporarily swap an active athlete for an unpicked athlete of equal or lesser {league.rules.currency} value.
-                </p>
 
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
-                <select
-                  value={htEventId}
-                  onChange={(e) => setHtEventId(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                <button
+                  onClick={() => submitCard('HOT_TAG')}
+                  className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-cyan-500/25 uppercase tracking-wider"
                 >
-                  {events.map(evt => (
-                    <option key={evt.id} value={evt.id}>
-                      {evt.name} ({evt.maxPoints} Pts)
-                    </option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Swap OUT (Active):</label>
-                <select
-                  value={htTarget}
-                  onChange={(e) => handleTargetChangeForHotTag(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
-                >
-                  {currentTeam.squad.map(ath => (
-                    <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
-                  ))}
-                </select>
-
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Replacement IN (≤ {league.rules.currency}{targetPrice}m):</label>
-                <select
-                  value={htReplacement}
-                  onChange={(e) => setHtReplacement(e.target.value)}
-                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
-                >
-                  {validReplacements.map(ath => (
-                    <option key={ath.name} value={ath.name}>
-                      {ath.name} ({league.rules.currency}{ath.price}m - {ath.gender})
-                    </option>
-                  ))}
-                </select>
+                  Save Hot Tag Card
+                </button>
               </div>
+            )}
 
-              <button
-                onClick={() => submitCard('HOT_TAG')}
-                className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-cyan-500/25 uppercase tracking-wider"
-              >
-                Save Hot Tag Card
-              </button>
-            </div>
+            {/* TRIPLE THREAT CARD */}
+            {league.rules.powerCards?.includes('TRIPLE_THREAT') && (
+              <div className="glass-card rounded-2xl p-5 border border-amber-500/30 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xl mb-1 uppercase">
+                    <Zap className="w-5 h-5 text-amber-400" />
+                    <span>Triple Threat (3× Multiplier)</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Triples one active athlete's points for a single selected event.
+                  </p>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
+                  <select
+                    value={ttEventId}
+                    onChange={(e) => setTtEventId(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  >
+                    {events.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.name} ({evt.maxPoints} Pts)
+                      </option>
+                    ))}
+                  </select>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
+                  <select
+                    value={ttAthlete}
+                    onChange={(e) => setTtAthlete(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  >
+                    {currentTeam.squad.map(ath => (
+                      <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => submitCard('TRIPLE_THREAT')}
+                  className="w-full bg-amber-600 hover:bg-amber-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/25 uppercase tracking-wider border border-amber-500/40"
+                >
+                  Save Triple Threat Card
+                </button>
+              </div>
+            )}
+
+            {/* SAFETY NET CARD */}
+            {league.rules.powerCards?.includes('SAFETY_NET') && (
+              <div className="glass-card rounded-2xl p-5 border border-rose-500/30 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-rose-400 font-extrabold text-xl mb-1 uppercase">
+                    <Shield className="w-5 h-5 text-rose-400" />
+                    <span>Safety Net (Zero Protection)</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Protects your athlete for a single event. If they score 0 points (DNF/DNS), they receive the score of your Insurance Athlete.
+                  </p>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
+                  <select
+                    value={snEventId}
+                    onChange={(e) => setSnEventId(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  >
+                    {events.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.name} ({evt.maxPoints} Pts)
+                      </option>
+                    ))}
+                  </select>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete:</label>
+                  <select
+                    value={snAthlete}
+                    onChange={(e) => setSnAthlete(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  >
+                    {currentTeam.squad.map(ath => (
+                      <option key={ath} value={ath}>{ath} ({league.rules.currency}{getAthletePrice(ath)}m)</option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => submitCard('SAFETY_NET')}
+                  className="w-full bg-rose-600 hover:bg-rose-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-rose-500/25 uppercase tracking-wider border border-rose-500/40"
+                >
+                  Save Safety Net Card
+                </button>
+              </div>
+            )}
+
+            {/* UNDERDOG CARD */}
+            {league.rules.powerCards?.includes('UNDERDOG') && (
+              <div className="glass-card rounded-2xl p-5 border border-orange-500/30 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-orange-400 font-extrabold text-xl mb-1 uppercase">
+                    <Award className="w-5 h-5 text-orange-400" />
+                    <span>Underdog (Double cheap)</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Double points for a single event if the athlete's value is ≤ {league.rules.currency}{league.rules.insuranceMaxPrice || 2.0}m.
+                  </p>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Select Target Event:</label>
+                  <select
+                    value={udEventId}
+                    onChange={(e) => setUdEventId(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  >
+                    {events.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.name} ({evt.maxPoints} Pts)
+                      </option>
+                    ))}
+                  </select>
+
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Target Active Athlete (≤ {league.rules.currency}{league.rules.insuranceMaxPrice || 2.0}m):</label>
+                  <select
+                    value={udAthlete}
+                    onChange={(e) => setUdAthlete(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  >
+                    {currentTeam.squad.map(ath => {
+                      const price = getAthletePrice(ath);
+                      const isEligible = price <= (league.rules.insuranceMaxPrice || 2.0);
+                      return (
+                        <option key={ath} value={ath} disabled={!isEligible}>
+                          {ath} ({league.rules.currency}{price}m) {!isEligible && '(Ineligible)'}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => submitCard('UNDERDOG')}
+                  className="w-full bg-orange-600 hover:bg-orange-500 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-orange-500/25 uppercase tracking-wider border border-orange-500/40"
+                >
+                  Save Underdog Card
+                </button>
+              </div>
+            )}
 
           </div>
 

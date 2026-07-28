@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLeague } from '../context/LeagueContext';
 import { 
   Shield, Key, Calendar, Award, Save, Lock, AlertCircle, 
-  CheckCircle2, UserX, DollarSign, Search, Users, AlertTriangle 
+  CheckCircle2, UserX, DollarSign, Search, Users, AlertTriangle, Settings
 } from 'lucide-react';
 
 export default function AdminTab({
@@ -51,6 +51,41 @@ export default function AdminTab({
 
   // Sub-Tab 4: Leagues & Payments State
   const [coachSearchTerm, setCoachSearchTerm] = useState('');
+
+  // Sub-Tab 5: Rules & Power Cards Editor State
+  const [rulesSalaryCap, setRulesSalaryCap] = useState(league.rules.salaryCap);
+  const [rulesRosterMin, setRulesRosterMin] = useState(league.rules.rosterMin);
+  const [rulesRosterMax, setRulesRosterMax] = useState(league.rules.rosterMax);
+  const [rulesInsuranceMaxPrice, setRulesInsuranceMaxPrice] = useState(league.rules.insuranceMaxPrice);
+  const [rulesMaxPowerCards, setRulesMaxPowerCards] = useState(league.rules.maxPowerCards);
+  const [rulesMovingDayMultiplier, setRulesMovingDayMultiplier] = useState(league.rules.movingDayMultiplier);
+  const [rulesLovelyTimeBonus100, setRulesLovelyTimeBonus100] = useState(league.rules.lovelyTimeBonus100);
+  const [rulesLovelyTimeBonus50, setRulesLovelyTimeBonus50] = useState(league.rules.lovelyTimeBonus50);
+  const [rulesPowerCards, setRulesPowerCards] = useState(league.rules.powerCards || ['MOVING_DAY', 'LOVELY_TIME', 'HOT_TAG']);
+
+  const handleToggleRulePowerCard = (cardKey) => {
+    setRulesPowerCards(prev => 
+      prev.includes(cardKey) ? prev.filter(c => c !== cardKey) : [...prev, cardKey]
+    );
+  };
+
+  const handleSaveRulesConfiguration = () => {
+    if (typeof league.updateLeagueRules !== 'function') {
+      return alert('Error: updateLeagueRules is not available in context.');
+    }
+    league.updateLeagueRules({
+      salaryCap: Number(rulesSalaryCap),
+      rosterMin: Number(rulesRosterMin),
+      rosterMax: Number(rulesRosterMax),
+      insuranceMaxPrice: Number(rulesInsuranceMaxPrice),
+      maxPowerCards: Number(rulesMaxPowerCards),
+      movingDayMultiplier: Number(rulesMovingDayMultiplier),
+      lovelyTimeBonus100: Number(rulesLovelyTimeBonus100),
+      lovelyTimeBonus50: Number(rulesLovelyTimeBonus50),
+      powerCards: rulesPowerCards
+    });
+    alert('✅ League rules and power card configurations updated successfully!');
+  };
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
@@ -224,6 +259,17 @@ export default function AdminTab({
             }`}
           >
             <DollarSign className="w-4 h-4" /> Leagues & Buy-Ins
+          </button>
+
+          <button
+            onClick={() => setAdminSubTab('rules')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all uppercase tracking-wider ${
+              adminSubTab === 'rules'
+                ? 'bg-[#e8462f] text-white shadow-lg shadow-indigo-500/25'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            <Settings className="w-4 h-4" /> League Rules & Cards
           </button>
         </div>
 
@@ -575,6 +621,147 @@ export default function AdminTab({
                 Setting these statuses updates the leaderboard stand filters instantly. Changes are synchronized automatically in local storage on this browser session.
               </span>
             </div>
+          </div>
+        )}
+
+        {adminSubTab === 'rules' && (
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-6">
+            <div className="border-b border-slate-800 pb-3">
+              <h3 className="font-display text-base font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
+                <Settings className="w-4 h-4 text-indigo-400" /> Edit League Rules & Active Power Cards
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 font-medium">
+                Customize budgets, limits, multipliers, and enable/disable cards for coaches.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Salary Cap Budget (£m):</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={rulesSalaryCap}
+                  onChange={(e) => setRulesSalaryCap(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Insurance Price Cap (£m):</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={rulesInsuranceMaxPrice}
+                  onChange={(e) => setRulesInsuranceMaxPrice(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Min Squad Size:</label>
+                <input
+                  type="number"
+                  value={rulesRosterMin}
+                  onChange={(e) => setRulesRosterMin(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Max Squad Size:</label>
+                <input
+                  type="number"
+                  value={rulesRosterMax}
+                  onChange={(e) => setRulesRosterMax(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Max Power Cards per Coach:</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="6"
+                  value={rulesMaxPowerCards}
+                  onChange={(e) => setRulesMaxPowerCards(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Moving Day Multiplier:</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={rulesMovingDayMultiplier}
+                  onChange={(e) => setRulesMovingDayMultiplier(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Lovely Time Bonus (100pt Event):</label>
+                <input
+                  type="number"
+                  value={rulesLovelyTimeBonus100}
+                  onChange={(e) => setRulesLovelyTimeBonus100(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Lovely Time Bonus (50pt Event):</label>
+                <input
+                  type="number"
+                  value={rulesLovelyTimeBonus50}
+                  onChange={(e) => setRulesLovelyTimeBonus50(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-slate-800 pt-4 space-y-3">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">Active Power Cards</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {[
+                  { key: 'MOVING_DAY', label: 'Moving Day (Multiplier)' },
+                  { key: 'LOVELY_TIME', label: 'Lovely Time (Guaranteed Points)' },
+                  { key: 'HOT_TAG', label: 'Hot Tag (1-Event Swap)' },
+                  { key: 'TRIPLE_THREAT', label: 'Triple Threat (3x Event)' },
+                  { key: 'SAFETY_NET', label: 'Safety Net (Zero Protection)' },
+                  { key: 'UNDERDOG', label: 'Underdog (Double if cheap)' }
+                ].map(card => {
+                  const isEnabled = rulesPowerCards.includes(card.key);
+                  return (
+                    <label
+                      key={card.key}
+                      className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition ${
+                        isEnabled
+                          ? 'bg-indigo-500/10 border-indigo-500/40 text-white font-semibold shadow-sm'
+                          : 'bg-slate-950 border-slate-850 text-slate-400'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isEnabled}
+                        onChange={() => handleToggleRulePowerCard(card.key)}
+                        className="w-4 h-4 bg-slate-900 border-slate-700 rounded text-indigo-500 focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span>{card.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              onClick={handleSaveRulesConfiguration}
+              className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 uppercase tracking-wider"
+            >
+              <Save className="w-4 h-4" /> Save Rules & Cards Configuration
+            </button>
           </div>
         )}
 

@@ -56,7 +56,9 @@ const buildLegacyLeagueConfig = () => {
     subtitle: 'Official Coach Dashboard • Live Leaderboard • RX+ Card Portal',
 
     // Rules (from defaults, matching the original hardcoded values)
-    rules: { ...DEFAULT_LEAGUE_RULES },
+    rules: localStorage.getItem('nobeef_legacy_league_rules') 
+      ? JSON.parse(localStorage.getItem('nobeef_legacy_league_rules')) 
+      : { ...DEFAULT_LEAGUE_RULES },
 
     // League Tiers
     leagueTiers: { ...DEFAULT_LEAGUE_TIERS },
@@ -114,7 +116,7 @@ export function LeagueProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const loadLeague = () => {
     try {
       // Discover active gymSlug and competitionSlug from path
       const pathParts = window.location.pathname.split('/');
@@ -167,7 +169,41 @@ export function LeagueProvider({ children }) {
       setError(err);
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadLeague();
   }, [window.location.pathname]);
+
+  useEffect(() => {
+    window.addEventListener('nobeef_data_change', loadLeague);
+    return () => window.removeEventListener('nobeef_data_change', loadLeague);
+  }, []);
+
+  const updateLeagueRules = (updatedRules) => {
+    if (!league) return;
+    const updated = {
+      ...league,
+      rules: {
+        ...league.rules,
+        ...updatedRules
+      }
+    };
+    if (updated.id === 'nobeef-crossfit-games-2026') {
+      localStorage.setItem('nobeef_legacy_league_rules', JSON.stringify(updated.rules));
+    } else {
+      const customLeagues = JSON.parse(localStorage.getItem('nobeef_custom_leagues') || '[]');
+      const idx = customLeagues.findIndex(l => l.id === updated.id);
+      if (idx >= 0) {
+        customLeagues[idx] = updated;
+        localStorage.setItem('nobeef_custom_leagues', JSON.stringify(customLeagues));
+      }
+    }
+    setLeague(updated);
+    window.dispatchEvent(new Event('nobeef_data_change'));
+  };
+
+  const contextValue = league ? { ...league, updateLeagueRules } : null;
 
   if (loading) {
     return (
@@ -193,7 +229,7 @@ export function LeagueProvider({ children }) {
   }
 
   return (
-    <LeagueContext.Provider value={league}>
+    <LeagueContext.Provider value={contextValue}>
       {children}
     </LeagueContext.Provider>
   );

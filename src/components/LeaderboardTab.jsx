@@ -107,6 +107,35 @@ export default function LeaderboardTab({
           pts = pts * league.rules.movingDayMultiplier;
         }
 
+        // Check Triple Threat multiplier
+        const tripleThreat = myCards.find(c => c.cardType === 'TRIPLE_THREAT' && c.eventId === evt.id && c.targetAthlete === athName);
+        if (tripleThreat) {
+          const extraPts = pts * 2; // Triples the current points (+2x pts)
+          cardBonusOnThisEvt += extraPts;
+          pts = pts * 3;
+        }
+
+        // Check Safety Net protection
+        const safetyNet = myCards.find(c => c.cardType === 'SAFETY_NET' && c.eventId === evt.id && c.targetAthlete === athName);
+        if (safetyNet && pts === 0 && team.ins) {
+          const insScoreRec = scores.find(s => s.eventId === evt.id && s.athlete === team.ins);
+          const insPts = insScoreRec ? Number(insScoreRec.points) || 0 : 0;
+          if (insPts > 0) {
+            cardBonusOnThisEvt += insPts;
+            pts = insPts;
+            isSubbed = true;
+            subReason = `Safety Net (${team.ins})`;
+          }
+        }
+
+        // Check Underdog double points
+        const underdog = myCards.find(c => c.cardType === 'UNDERDOG' && c.eventId === evt.id && c.targetAthlete === athName);
+        if (underdog && athData.price <= (league.rules.insuranceMaxPrice || 2.0)) {
+          const extraPts = pts; // Doubles current points (+1x pts)
+          cardBonusOnThisEvt += extraPts;
+          pts = pts * 2;
+        }
+
         athleteTotalPts += pts;
 
         eventBreakdown.push({
@@ -640,6 +669,9 @@ export default function LeaderboardTab({
                                     {card.cardType === 'HOT_TAG' && <Flame className="w-3.5 h-3.5 text-cyan-400" />}
                                     {card.cardType === 'LOVELY_TIME' && <Star className="w-3.5 h-3.5 text-purple-400" />}
                                     {card.cardType === 'MOVING_DAY' && <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />}
+                                    {card.cardType === 'TRIPLE_THREAT' && <Zap className="w-3.5 h-3.5 text-amber-400" />}
+                                    {card.cardType === 'SAFETY_NET' && <Shield className="w-3.5 h-3.5 text-rose-400" />}
+                                    {card.cardType === 'UNDERDOG' && <Award className="w-3.5 h-3.5 text-orange-400" />}
                                     <span>{card.cardType.replace('_', ' ')}</span>
                                   </div>
                                   <div className="text-[11px] text-slate-300 mt-1">

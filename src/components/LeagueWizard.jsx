@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Trophy, Settings, Shield, ShieldAlert, Users, 
   ArrowLeft, ArrowRight, Check, Sparkles, Key, 
-  Calendar, DollarSign, HelpCircle, Eye, EyeOff
+  Calendar, DollarSign, HelpCircle, Eye, EyeOff,
+  Percent, Tag, Info, TrendingUp, Star, Flame, Zap, Award
 } from 'lucide-react';
-import { DEFAULT_LEAGUE_RULES, DEFAULT_LEAGUE_TIERS, generateJoinCode } from '../data/competitionConfig';
+import { DEFAULT_LEAGUE_RULES, DEFAULT_LEAGUE_TIERS, generateJoinCode, generateRandomPassword, POWER_CARD_INFO } from '../data/competitionConfig';
 import { ATHLETES_DATA, SEED_EVENTS, COMPETITION_DAYS, DRAFT_ANALYTICS } from '../data/seedData';
+
 
 // Available competitions (Phase 2 default list)
 const COMPETITIONS = [
@@ -18,6 +20,19 @@ export default function LeagueWizard() {
   const [step, setStep] = useState(1);
   const [showAdminPw, setShowAdminPw] = useState(false);
   const [showSitePw, setShowSitePw] = useState(false);
+
+  // Compute price ratings summary for Step 3
+  const priceRatings = {};
+  ATHLETES_DATA.forEach(a => {
+    const key = `${a.rank}-${a.price}`;
+    if (!priceRatings[key]) {
+      priceRatings[key] = { rank: a.rank, price: a.price, count: 0, men: 0, women: 0 };
+    }
+    priceRatings[key].count++;
+    if (a.gender === 'Men') priceRatings[key].men++;
+    else priceRatings[key].women++;
+  });
+  const sortedRatings = Object.values(priceRatings).sort((a, b) => b.price - a.price);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -38,19 +53,21 @@ export default function LeagueWizard() {
     movingDayMultiplier: DEFAULT_LEAGUE_RULES.movingDayMultiplier,
     lovelyTimeBonus100: DEFAULT_LEAGUE_RULES.lovelyTimeBonus100,
     lovelyTimeBonus50: DEFAULT_LEAGUE_RULES.lovelyTimeBonus50,
+    powerCards: [...DEFAULT_LEAGUE_RULES.powerCards],
+    maxPowerCards: DEFAULT_LEAGUE_RULES.maxPowerCards,
     
     // Step 4: Tiers
     tiers: {
       free: { enabled: true, name: 'Free League', price: 0, minCoaches: 0 },
       paid2: { enabled: true, name: '£2 Buy-In League', price: 2, minCoaches: 5 },
-      paid5: { enabled: true, name: '£5 Buy-In League', price: 5, minCoaches: 5 }
+      paid5: { enabled: false, name: '£5 Buy-In League', price: 5, minCoaches: 5 }
     },
     
     // Step 5: Security & Passwords
     organizers: 'Gym Admin',
     lockDeadline: '2026-07-20',
-    sitePassword: 'nobeef',
-    adminPassword: 'nobeef2026',
+    sitePassword: generateRandomPassword(8),
+    adminPassword: generateRandomPassword(10),
     joinCode: generateJoinCode()
   });
 
@@ -75,6 +92,15 @@ export default function LeagueWizard() {
 
   const handleNumberChange = (name, val) => {
     setFormData(prev => ({ ...prev, [name]: Number(val) }));
+  };
+
+  const togglePowerCard = (cardKey) => {
+    setFormData(prev => {
+      const active = prev.powerCards.includes(cardKey)
+        ? prev.powerCards.filter(c => c !== cardKey)
+        : [...prev.powerCards, cardKey];
+      return { ...prev, powerCards: active };
+    });
   };
 
   const toggleTier = (tierKey) => {
@@ -164,8 +190,8 @@ export default function LeagueWizard() {
         lovelyTimeBonus100: formData.lovelyTimeBonus100,
         lovelyTimeBonus50: formData.lovelyTimeBonus50,
         currency: '£',
-        powerCards: DEFAULT_LEAGUE_RULES.powerCards,
-        maxPowerCards: DEFAULT_LEAGUE_RULES.maxPowerCards
+        powerCards: formData.powerCards,
+        maxPowerCards: formData.maxPowerCards
       },
 
       leagueTiers: {
@@ -350,88 +376,222 @@ export default function LeagueWizard() {
 
           {/* STEP 3: Roster & Rules */}
           {step === 3 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 text-xs text-indigo-300">
-                <Sparkles className="w-4 h-4 shrink-0 text-indigo-400" />
-                <span>Pre-loaded defaults match standard rules. Modify below if desired.</span>
+            <div className="space-y-6">
+              {/* Header Note */}
+              <div className="flex items-start gap-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3.5 text-xs text-indigo-300">
+                <Sparkles className="w-4 h-4 shrink-0 text-indigo-400 mt-0.5" />
+                <div>
+                  <span className="font-bold block text-white mb-0.5">Customize Your League Format</span>
+                  Configure roster size, budget constraints, and active power cards. Default values match standard rules.
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Salary Cap Budget</label>
-                  <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3">
-                    <span className="text-slate-500 font-bold">£</span>
+              {/* Roster & Budget Card */}
+              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5 border-b border-slate-800/80 pb-2">
+                  <DollarSign className="w-4 h-4" />
+                  <span>Salary Cap & Roster Settings</span>
+                </h3>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Coaches draft a squad from the athlete pool. The total price of active drafted athletes must not exceed the <strong>Salary Cap Budget</strong>.
+                </p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Salary Cap Budget</label>
+                    <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3">
+                      <span className="text-slate-500 font-bold">£</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={formData.salaryCap}
+                        onChange={(e) => handleNumberChange('salaryCap', e.target.value)}
+                        className="w-full bg-transparent border-none py-2.5 text-sm text-white focus:outline-none focus:ring-0 font-mono"
+                      />
+                      <span className="text-slate-500 font-bold">m</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Insurance Price Cap</label>
+                    <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3">
+                      <span className="text-slate-500 font-bold">≤ £</span>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={formData.insuranceMaxPrice}
+                        onChange={(e) => handleNumberChange('insuranceMaxPrice', e.target.value)}
+                        className="w-full bg-transparent border-none py-2.5 text-sm text-white focus:outline-none focus:ring-0 font-mono"
+                      />
+                      <span className="text-slate-500 font-bold">m</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Min Squad Size</label>
                     <input
                       type="number"
-                      step="0.5"
-                      value={formData.salaryCap}
-                      onChange={(e) => handleNumberChange('salaryCap', e.target.value)}
-                      className="w-full bg-transparent border-none py-2 text-sm text-white focus:outline-none focus:ring-0 font-mono"
+                      value={formData.rosterMin}
+                      onChange={(e) => handleNumberChange('rosterMin', e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none transition font-mono"
                     />
-                    <span className="text-slate-500 font-bold">m</span>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Max Squad Size</label>
+                    <input
+                      type="number"
+                      value={formData.rosterMax}
+                      onChange={(e) => handleNumberChange('rosterMax', e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none transition font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Price Ratings breakdown */}
+              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5 border-b border-slate-800/80 pb-2">
+                  <Tag className="w-4 h-4" />
+                  <span>Athlete Price Ratings Breakdown</span>
+                </h3>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Understanding pricing tier distribution helps in setting the right Salary Cap. Below is the count of competitors per price tier:
+                </p>
+
+                <div className="bg-slate-950 border border-slate-800/80 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-850 text-slate-500 font-bold text-[10px] uppercase">
+                        <th className="py-2 px-3">Rank Tier & Value</th>
+                        <th className="py-2 px-3 text-center">Men</th>
+                        <th className="py-2 px-3 text-center">Women</th>
+                        <th className="py-2 px-3 text-right">Total Pool</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-900 text-slate-300 font-medium">
+                      {sortedRatings.map(rating => (
+                        <tr key={rating.rank} className="hover:bg-slate-900/40">
+                          <td className="py-2 px-3 font-semibold text-white">
+                            {rating.rank} <span className="text-indigo-400 ml-1 font-mono">(£{rating.price.toFixed(1)}m)</span>
+                          </td>
+                          <td className="py-2 px-3 text-center text-slate-400 font-mono">{rating.men}</td>
+                          <td className="py-2 px-3 text-center text-slate-400 font-mono">{rating.women}</td>
+                          <td className="py-2 px-3 text-right font-bold text-white font-mono">{rating.count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Power Cards Config */}
+              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-800/80 pb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                    <Shield className="w-4 h-4" />
+                    <span>RX+ Power Cards Rules</span>
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">Max plays/coach:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="6"
+                      value={formData.maxPowerCards}
+                      onChange={(e) => handleNumberChange('maxPowerCards', e.target.value)}
+                      className="w-12 bg-slate-950 border border-slate-850 rounded px-1.5 py-0.5 text-xs text-white font-mono text-center focus:outline-none focus:border-indigo-500"
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Insurance Price Cap</label>
-                  <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3">
-                    <span className="text-slate-500 font-bold">≤ £</span>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={formData.insuranceMaxPrice}
-                      onChange={(e) => handleNumberChange('insuranceMaxPrice', e.target.value)}
-                      className="w-full bg-transparent border-none py-2 text-sm text-white focus:outline-none focus:ring-0 font-mono"
-                    />
-                    <span className="text-slate-500 font-bold">m</span>
+                {/* Sub parameters for specific rules if enabled */}
+                <div className="grid grid-cols-2 gap-3 text-xs bg-slate-950 p-3 rounded-xl border border-slate-850/80">
+                  <div>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-slate-500 block mb-1">Moving Day Multiplier</label>
+                    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.movingDayMultiplier}
+                        onChange={(e) => handleNumberChange('movingDayMultiplier', e.target.value)}
+                        className="w-full bg-transparent border-none p-0 text-xs text-white focus:outline-none focus:ring-0 font-mono"
+                      />
+                      <span className="text-slate-500 font-bold">×</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-slate-500 block mb-1">LT Override (100pt)</label>
+                    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+                      <input
+                        type="number"
+                        value={formData.lovelyTimeBonus100}
+                        onChange={(e) => handleNumberChange('lovelyTimeBonus100', e.target.value)}
+                        className="w-full bg-transparent border-none p-0 text-xs text-white focus:outline-none focus:ring-0 font-mono"
+                      />
+                      <span className="text-slate-500 font-bold">pts</span>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Min Squad Size</label>
-                  <input
-                    type="number"
-                    value={formData.rosterMin}
-                    onChange={(e) => handleNumberChange('rosterMin', e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none transition font-mono"
-                  />
-                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { key: 'MOVING_DAY', label: 'Moving Day Rule', desc: 'Apply a 1.5× multiplier to one athlete for an entire competition day.' },
+                    { key: 'LOVELY_TIME', label: 'Lovely Time Rule', desc: 'Override an athlete\'s event score with a guaranteed point value (+50/+25).' },
+                    { key: 'HOT_TAG', label: 'Hot Tag Swap', desc: 'Temporarily swap an active athlete for an unpicked competitor of equal/lesser price.' },
+                    { key: 'TRIPLE_THREAT', label: 'Triple Threat', desc: 'Triple the points earned by one active athlete in a single event.' },
+                    { key: 'SAFETY_NET', label: 'Safety Net', desc: 'If target athlete scores 0 points, they are replaced by the Insurance Athlete\'s score.' },
+                    { key: 'UNDERDOG', label: 'Underdog', desc: 'Double the points earned by one athlete in a single event if their price is ≤ £2.0m.' }
+                  ].map(card => {
+                    const isEnabled = formData.powerCards.includes(card.key);
+                    
+                    const getIcon = (key) => {
+                      switch (key) {
+                        case 'MOVING_DAY': return <TrendingUp className="w-4 h-4 text-emerald-400" />;
+                        case 'LOVELY_TIME': return <Star className="w-4 h-4 text-purple-400" />;
+                        case 'HOT_TAG': return <Flame className="w-4 h-4 text-cyan-400" />;
+                        case 'TRIPLE_THREAT': return <Zap className="w-4 h-4 text-amber-400" />;
+                        case 'SAFETY_NET': return <Shield className="w-4 h-4 text-rose-400" />;
+                        case 'UNDERDOG': return <Award className="w-4 h-4 text-orange-400" />;
+                        default: return <Sparkles className="w-4 h-4 text-indigo-400" />;
+                      }
+                    };
 
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Max Squad Size</label>
-                  <input
-                    type="number"
-                    value={formData.rosterMax}
-                    onChange={(e) => handleNumberChange('rosterMax', e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none transition font-mono"
-                  />
-                </div>
+                    const togglePowerCard = (cardKey) => {
+                      setFormData(prev => {
+                        const active = prev.powerCards.includes(cardKey)
+                          ? prev.powerCards.filter(c => c !== cardKey)
+                          : [...prev.powerCards, cardKey];
+                        return { ...prev, powerCards: active };
+                      });
+                    };
 
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Moving Day Multiplier</label>
-                  <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3">
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formData.movingDayMultiplier}
-                      onChange={(e) => handleNumberChange('movingDayMultiplier', e.target.value)}
-                      className="w-full bg-transparent border-none py-2 text-sm text-white focus:outline-none focus:ring-0 font-mono"
-                    />
-                    <span className="text-slate-500 font-bold">×</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">LT Override (100pt event)</label>
-                  <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3">
-                    <input
-                      type="number"
-                      value={formData.lovelyTimeBonus100}
-                      onChange={(e) => handleNumberChange('lovelyTimeBonus100', e.target.value)}
-                      className="w-full bg-transparent border-none py-2 text-sm text-white focus:outline-none focus:ring-0 font-mono"
-                    />
-                    <span className="text-slate-500 font-bold">pts</span>
-                  </div>
+                    return (
+                      <label
+                        key={card.key}
+                        className={`flex items-start gap-3 p-3 rounded-xl border text-xs cursor-pointer transition ${
+                          isEnabled
+                            ? 'bg-indigo-500/5 border-indigo-500/40 text-white'
+                            : 'bg-slate-950/60 border-slate-850 text-slate-400 hover:border-slate-800'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isEnabled}
+                          onChange={() => togglePowerCard(card.key)}
+                          className="w-4 h-4 bg-slate-900 border-slate-700 rounded text-indigo-500 focus:ring-indigo-500 cursor-pointer mt-0.5 shrink-0"
+                        />
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-1.5 font-bold uppercase tracking-wide text-slate-200">
+                            {getIcon(card.key)}
+                            <span>{card.label}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 leading-relaxed">{card.desc}</p>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -583,7 +743,7 @@ export default function LeagueWizard() {
                       name="sitePassword"
                       value={formData.sitePassword}
                       onChange={handleTextChange}
-                      placeholder="nobeef"
+                      placeholder="e.g. site-secret-key"
                       className={`w-full bg-slate-950 border ${errors.sitePassword ? 'border-rose-500' : 'border-slate-800 focus:border-indigo-500'} rounded-xl pl-3 pr-10 py-2 text-xs text-white focus:outline-none transition font-mono`}
                     />
                     <button
@@ -605,7 +765,7 @@ export default function LeagueWizard() {
                       name="adminPassword"
                       value={formData.adminPassword}
                       onChange={handleTextChange}
-                      placeholder="nobeef2026"
+                      placeholder="e.g. admin-secret-key"
                       className={`w-full bg-slate-950 border ${errors.adminPassword ? 'border-rose-500' : 'border-slate-800 focus:border-indigo-500'} rounded-xl pl-3 pr-10 py-2 text-xs text-white focus:outline-none transition font-mono`}
                     />
                     <button

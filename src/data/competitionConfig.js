@@ -12,7 +12,7 @@ export const DEFAULT_LEAGUE_RULES = {
   rosterMin: 3,               // Minimum squad size
   rosterMax: 5,               // Maximum squad size
   insuranceMaxPrice: 2.0,     // Insurance pick must be ≤ this price
-  powerCards: ['MOVING_DAY', 'LOVELY_TIME', 'HOT_TAG'],
+  powerCards: ['MOVING_DAY', 'LOVELY_TIME', 'HOT_TAG', 'TRIPLE_THREAT', 'SAFETY_NET', 'UNDERDOG'],
   maxPowerCards: 3,            // Max cards per coach
   movingDayMultiplier: 1.5,   // 1.5× on a full competition day
   lovelyTimeBonus100: 50,     // Guaranteed pts on a 100pt event
@@ -65,6 +65,24 @@ export const POWER_CARD_INFO = {
     icon: 'Flame',
     color: 'cyan',
   },
+  TRIPLE_THREAT: {
+    name: 'Triple Threat',
+    description: 'Triple the points earned by one active athlete in a single event.',
+    icon: 'Zap',
+    color: 'amber',
+  },
+  SAFETY_NET: {
+    name: 'Safety Net',
+    description: 'If target athlete scores 0 points, they are replaced by the Insurance Athlete\'s score for this event.',
+    icon: 'Shield',
+    color: 'rose',
+  },
+  UNDERDOG: {
+    name: 'Underdog',
+    description: 'Double the points earned by one athlete in a single event if their price is ≤ £2.0m.',
+    icon: 'Award',
+    color: 'orange',
+  },
 };
 
 /**
@@ -77,3 +95,12 @@ export const generateJoinCode = () => {
     Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   return `${segment()}-${segment()}`;
 };
+
+/**
+ * Generate a random readable password
+ */
+export const generateRandomPassword = (length = 8) => {
+  const chars = 'abcdefghijkmnpqrstuvwxyz23456789'; // Readable lowercase letters and numbers
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+};
+

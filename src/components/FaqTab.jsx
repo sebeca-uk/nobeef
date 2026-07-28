@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLeague } from '../context/LeagueContext';
-import { HelpCircle, Flame, Sparkles, RefreshCw, Shield, Lock, Award, DollarSign, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
+import { HelpCircle, Flame, Sparkles, RefreshCw, Shield, Lock, Award, DollarSign, ChevronDown, ChevronUp, BookOpen, Zap } from 'lucide-react';
 
 export default function FaqTab() {
   const league = useLeague();
@@ -11,22 +11,45 @@ export default function FaqTab() {
     setOpenFaqIndex(prev => prev === idx ? null : idx);
   };
 
-  const powerCardRules = [
-    {
+  const allCardDefinitions = {
+    MOVING_DAY: {
       icon: Flame,
       title: `Moving Day Card (${league.rules.movingDayMultiplier}× Multiplier)`,
       desc: `Multiplies one active athlete’s total earned points by ${league.rules.movingDayMultiplier}× across an entire competition day. Useful on days with multiple events for high-volume scorers.`
     },
-    {
+    LOVELY_TIME: {
       icon: Sparkles,
       title: `Lovely Time Card (+${league.rules.lovelyTimeBonus100} / +${league.rules.lovelyTimeBonus50} Guaranteed Pts)`,
       desc: `Guarantees points regardless of workout performance. Proportional to event cap: 100-point events yield +${league.rules.lovelyTimeBonus100} guaranteed points; 50-point events yield +${league.rules.lovelyTimeBonus50} guaranteed points.`
     },
-    {
+    HOT_TAG: {
       icon: RefreshCw,
       title: 'Hot Tag Card (1-Event Swap)',
       desc: `Temporarily swaps an active squad athlete for an unpicked athlete of equal or lesser ${league.rules.currency} value for 1 specific event. Swap-in athlete must cost ≤ the athlete being swapped out.`
     },
+    TRIPLE_THREAT: {
+      icon: Zap,
+      title: 'Triple Threat Card (3× Event Multiplier)',
+      desc: 'Triples the points earned by one active athlete in a single selected event. High risk, high reward!'
+    },
+    SAFETY_NET: {
+      icon: Shield,
+      title: 'Safety Net Card (Zero-Score Protection)',
+      desc: `Protects your athlete for a single event. If they score 0 points (DNF/DNS), they receive the score of your Insurance Athlete for that event.`
+    },
+    UNDERDOG: {
+      icon: Award,
+      title: `Underdog Card (Double Cheap Boost)`,
+      desc: `Earn double points for one athlete in a single event, but only if their price is ≤ ${league.rules.currency}${league.rules.insuranceMaxPrice}m.`
+    }
+  };
+
+  const activeCardsList = league.rules.powerCards || ['MOVING_DAY', 'LOVELY_TIME', 'HOT_TAG'];
+
+  const powerCardRules = [
+    ...activeCardsList
+      .filter(key => allCardDefinitions[key])
+      .map(key => allCardDefinitions[key]),
     {
       icon: Lock,
       title: 'Anti-Stacking & Event Locking Rules',
@@ -38,7 +61,7 @@ export default function FaqTab() {
     {
       cat: 'CARDS',
       q: 'How many Power Cards can a coach play per season?',
-      a: `Each coach receives ${league.rules.maxPowerCards} RX+ Power Cards (Moving Day, Lovely Time, Hot Tag). Each card can be played once per season.`
+      a: `Each coach receives ${league.rules.maxPowerCards} RX+ Power Cards (${activeCardsList.map(k => k.replace('_', ' ')).join(', ')}). Each card can be played once per season.`
     },
     {
       cat: 'CARDS',
