@@ -20,7 +20,8 @@
   --text-muted: #6b6b6f;
 
   /* Accents — one loud color, used sparingly */
-  --accent-primary: #e8462f;
+  --brand-accent: #e8462f; /* Fallback default */
+  --accent-primary: var(--brand-accent);
   --accent-primary-hover: #ff6a4d;
   --accent-gold: #f2b134;
   --accent-steel: #5b7a94;
@@ -35,7 +36,7 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --shadow-card: 0 12px 28px -12px rgba(0, 0, 0, 0.55);
-  --shadow-accent: 0 10px 24px -8px rgba(232, 70, 47, 0.35);
+  --shadow-accent: 0 10px 24px -8px var(--brand-accent);
 }
 
 body {

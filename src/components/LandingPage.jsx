@@ -37,6 +37,29 @@ export default function LandingPage() {
   const [joinCode, setJoinCode] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Retrieve custom leagues from localStorage
+  const getCombinedLeagues = () => {
+    const custom = JSON.parse(localStorage.getItem('nobeef_custom_leagues') || '[]');
+    const mappedCustom = custom.map(l => ({
+      id: l.gymId,
+      name: l.gymName,
+      leagueCount: 1,
+      competitionSlug: l.competitionId,
+      brandColor: l.brandColor || 'indigo'
+    }));
+    return [...DEMO_GYMS, ...mappedCustom];
+  };
+
+  const activeLeagues = getCombinedLeagues();
+
+  const colorGradients = {
+    indigo: 'from-indigo-500 to-blue-600',
+    orange: 'from-orange-500 to-amber-600',
+    emerald: 'from-emerald-500 to-teal-700',
+    rose: 'from-rose-500 to-red-700',
+    sky: 'from-sky-500 to-indigo-600'
+  };
+
   const filteredCompetitions = DEMO_COMPETITIONS.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -184,13 +207,13 @@ export default function LandingPage() {
             Active Leagues
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {DEMO_GYMS.map(gym => (
+            {activeLeagues.map(gym => (
               <Link
                 key={gym.id}
                 to={`/g/${gym.id}/${gym.competitionSlug}`}
                 className="group glass-card rounded-xl p-4 border border-slate-800 hover:border-indigo-500/40 transition-all duration-200 flex items-center gap-4"
               >
-                <div className="w-10 h-10 bg-gradient-to-tr from-amber-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                <div className={`w-10 h-10 bg-gradient-to-tr ${colorGradients[gym.brandColor] || 'from-amber-500 to-red-600'} rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0`}>
                   {gym.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">

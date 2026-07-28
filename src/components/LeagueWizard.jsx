@@ -28,6 +28,7 @@ export default function LeagueWizard() {
     gymName: '',
     gymSlug: '',
     leagueName: '',
+    brandColor: 'indigo', // default brand color choice
     
     // Step 3: Rules
     salaryCap: DEFAULT_LEAGUE_RULES.salaryCap,
@@ -152,6 +153,7 @@ export default function LeagueWizard() {
       joinCode: formData.joinCode,
       sitePassword: formData.sitePassword.trim().toLowerCase(),
       adminPassword: formData.adminPassword.trim().toLowerCase(),
+      brandColor: formData.brandColor, // theme coloring option
 
       rules: {
         salaryCap: formData.salaryCap,
@@ -314,6 +316,33 @@ export default function LeagueWizard() {
                     className={`w-full bg-slate-950 border ${errors.leagueName ? 'border-rose-500' : 'border-slate-800 focus:border-indigo-500'} rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none transition`}
                   />
                   {errors.leagueName && <p className="text-rose-400 text-[10px] mt-1 font-bold">{errors.leagueName}</p>}
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Theme Accent Color</label>
+                  <div className="flex gap-3 pt-1">
+                    {[
+                      { key: 'indigo', hexBg: 'bg-indigo-500', name: 'Indigo' },
+                      { key: 'orange', hexBg: 'bg-orange-500', name: 'Orange' },
+                      { key: 'emerald', hexBg: 'bg-emerald-500', name: 'Emerald' },
+                      { key: 'rose', hexBg: 'bg-rose-500', name: 'Rose' },
+                      { key: 'sky', hexBg: 'bg-sky-500', name: 'Sky' }
+                    ].map(color => (
+                      <button
+                        key={color.key}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, brandColor: color.key }))}
+                        className={`w-8 h-8 rounded-full ${color.hexBg} transition-all relative ${
+                          formData.brandColor === color.key ? 'ring-4 ring-white scale-110 shadow-lg' : 'opacity-70 hover:opacity-100 hover:scale-105'
+                        }`}
+                        title={color.name}
+                      >
+                        {formData.brandColor === color.key && (
+                          <Check className="w-4 h-4 text-white absolute inset-0 m-auto" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

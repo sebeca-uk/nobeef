@@ -65,6 +65,19 @@ export default function App() {
     return () => window.removeEventListener('nobeef_data_change', handleSync);
   }, []);
 
+  // Sync custom theme brand color
+  useEffect(() => {
+    const colorMap = {
+      indigo: '#6366f1',
+      orange: '#f97316',
+      emerald: '#10b981',
+      rose: '#f43f5e',
+      sky: '#0ea5e9'
+    };
+    const accentColor = colorMap[league.brandColor] || '#6366f1'; // indigo fallback
+    document.documentElement.style.setProperty('--brand-accent', accentColor);
+  }, [league.brandColor]);
+
   const handleSiteLogin = (e) => {
     e.preventDefault();
     const cleanPw = sitePassword.trim().toLowerCase();
