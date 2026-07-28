@@ -20,7 +20,11 @@ import {
   getLocalWithdrawals,
   saveLocalWithdrawals,
   getLocalBonusPicks,
-  saveLocalBonusPicks
+  saveLocalBonusPicks,
+  getLocalPaid2Coaches,
+  saveLocalPaid2Coaches,
+  getLocalPaid5Coaches,
+  saveLocalPaid5Coaches
 } from './firebase';
 
 export default function App() {
@@ -38,6 +42,8 @@ export default function App() {
   const [scores, setScores] = useState(getLocalScores);
   const [withdrawals, setWithdrawals] = useState(getLocalWithdrawals);
   const [bonusPicks, setBonusPicks] = useState(getLocalBonusPicks);
+  const [paid2Coaches, setPaid2Coaches] = useState(getLocalPaid2Coaches);
+  const [paid5Coaches, setPaid5Coaches] = useState(getLocalPaid5Coaches);
 
   // Sync state when storage changes
   useEffect(() => {
@@ -47,6 +53,8 @@ export default function App() {
       setScores(getLocalScores());
       setWithdrawals(getLocalWithdrawals());
       setBonusPicks(getLocalBonusPicks());
+      setPaid2Coaches(getLocalPaid2Coaches());
+      setPaid5Coaches(getLocalPaid5Coaches());
     };
 
     window.addEventListener('nobeef_data_change', handleSync);
@@ -112,7 +120,7 @@ export default function App() {
   // Front of Site Password Lock Screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0a2540] text-slate-100 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden">
+      <div className="min-h-screen bg-[#121316] text-slate-100 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden">
         {/* Background glow accents */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
@@ -126,7 +134,7 @@ export default function App() {
             <span className="uppercase text-[10px] font-bold tracking-widest text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
               Private Fantasy Portal
             </span>
-            <h1 className="text-2xl font-black text-white mt-3 tracking-tight">
+            <h1 className="font-display text-3xl font-black text-white mt-3 tracking-tight uppercase">
               NoBeef CrossFit Games Fantasy 2026
             </h1>
             <p className="text-xs text-slate-400 mt-2">
@@ -159,7 +167,7 @@ export default function App() {
 
             <button
               type="submit"
-              className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-3.5 px-6 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+              className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-3.5 px-6 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
             >
               <span>Enter League Portal</span>
               <ArrowRight className="w-4 h-4" />
@@ -176,7 +184,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#0a2540] text-slate-100 font-sans pb-24 md:pb-12">
+    <div className="min-h-screen flex flex-col justify-between bg-[#121316] text-slate-100 font-sans pb-24 md:pb-12">
       <div>
         <Header activeTab={activeTab} setActiveTab={setActiveTab} events={events} />
 
@@ -187,6 +195,8 @@ export default function App() {
               cardSubmissions={cardSubmissions}
               onSaveCard={handleSaveCard}
               onDeleteCard={handleDeleteCard}
+              paid2Coaches={paid2Coaches}
+              paid5Coaches={paid5Coaches}
             />
           )}
 
@@ -197,10 +207,17 @@ export default function App() {
               scores={scores}
               withdrawals={withdrawals}
               bonusPicks={bonusPicks}
+              paid2Coaches={paid2Coaches}
+              paid5Coaches={paid5Coaches}
             />
           )}
 
-          {activeTab === 'rosters' && <RostersTab />}
+          {activeTab === 'rosters' && (
+            <RostersTab
+              paid2Coaches={paid2Coaches}
+              paid5Coaches={paid5Coaches}
+            />
+          )}
 
           {activeTab === 'events' && <EventsTab events={events} />}
 
@@ -215,9 +232,13 @@ export default function App() {
               events={events}
               scores={scores}
               withdrawals={withdrawals}
+              paid2Coaches={paid2Coaches}
+              paid5Coaches={paid5Coaches}
               onSaveSchedule={handleSaveSchedule}
               onSaveScores={handleSaveScores}
               onSaveWithdrawals={handleSaveWithdrawals}
+              onSavePaid2Coaches={saveLocalPaid2Coaches}
+              onSavePaid5Coaches={saveLocalPaid5Coaches}
             />
           )}
         </main>

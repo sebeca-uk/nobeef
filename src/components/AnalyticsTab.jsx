@@ -9,7 +9,7 @@ export default function AnalyticsTab() {
     <div className="space-y-6 font-sans">
       <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
         <div className="mb-6">
-          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
+          <h2 className="font-display text-2xl font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
             <BarChart3 className="w-6 h-6 text-indigo-400" />
             <span>Official Draft Snapshot & League Analytics</span>
           </h2>

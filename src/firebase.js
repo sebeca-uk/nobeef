@@ -31,7 +31,9 @@ const STORAGE_KEYS = {
   CARDS: 'nobeef_cards_v1',
   SCORES: 'nobeef_scores_v1',
   WITHDRAWALS: 'nobeef_withdrawals_v1',
-  BONUS_PICKS: 'nobeef_bonus_picks_v1'
+  BONUS_PICKS: 'nobeef_bonus_picks_v1',
+  PAID_2: 'nobeef_paid_2_coaches_v1',
+  PAID_5: 'nobeef_paid_5_coaches_v1'
 };
 
 export const getLocalOrSeedEvents = () => {
@@ -128,6 +130,52 @@ export const saveLocalBonusPicks = (bonusPicks) => {
     localStorage.setItem(STORAGE_KEYS.BONUS_PICKS, JSON.stringify(bonusPicks));
   } catch (e) {
     console.error("Failed to save local bonus picks", e);
+  }
+  window.dispatchEvent(new Event('nobeef_data_change'));
+};
+
+export const getLocalPaid2Coaches = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.PAID_2);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error("Failed to parse local paid 2 coaches", e);
+  }
+  const defaultPaid = ["Boycey", "Sam Joyce", "Connor Baker-Elliott", "Luke Boer", "Al Beard", "Chris Quinney", "Han Greenwood", "Jack Kettlety"];
+  localStorage.setItem(STORAGE_KEYS.PAID_2, JSON.stringify(defaultPaid));
+  return defaultPaid;
+};
+
+export const saveLocalPaid2Coaches = (coaches) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PAID_2, JSON.stringify(coaches));
+  } catch (e) {
+    console.error("Failed to save local paid 2 coaches", e);
+  }
+  window.dispatchEvent(new Event('nobeef_data_change'));
+};
+
+export const getLocalPaid5Coaches = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.PAID_5);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error("Failed to parse local paid 5 coaches", e);
+  }
+  const defaultPaid = ["Clo", "Joshua Brooke", "Sean Carey"];
+  localStorage.setItem(STORAGE_KEYS.PAID_5, JSON.stringify(defaultPaid));
+  return defaultPaid;
+};
+
+export const saveLocalPaid5Coaches = (coaches) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.PAID_5, JSON.stringify(coaches));
+  } catch (e) {
+    console.error("Failed to save local paid 5 coaches", e);
   }
   window.dispatchEvent(new Event('nobeef_data_change'));
 };

@@ -75,7 +75,7 @@ export default function FaqTab() {
       <div className="glass-card rounded-2xl p-6 border border-indigo-500/20">
         <div className="flex items-center gap-3 mb-2">
           <HelpCircle className="w-7 h-7 text-indigo-400" />
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider">
+          <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white uppercase tracking-wider">
             League Rules & Official FAQ
           </h2>
         </div>
@@ -86,7 +86,7 @@ export default function FaqTab() {
 
       {/* Power Card Detailed Rules Grid */}
       <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
-        <h3 className="text-xl font-extrabold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
+        <h3 className="font-display text-xl font-extrabold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-indigo-400" />
           <span>RX+ Power Card Rules & Specifications</span>
         </h3>
@@ -112,7 +112,7 @@ export default function FaqTab() {
       {/* Categorized FAQ Section */}
       <div className="glass-card rounded-2xl p-5 border border-indigo-500/20 space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-800">
-          <h3 className="text-xl font-extrabold text-white uppercase tracking-wider">
+          <h3 className="font-display text-xl font-extrabold text-white uppercase tracking-wider">
             Frequently Asked Questions
           </h3>
 
@@ -123,7 +123,7 @@ export default function FaqTab() {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
                   activeCategory === cat
-                    ? 'bg-[#635bff] text-white shadow-md shadow-indigo-500/25'
+                    ? 'bg-[#e8462f] text-white shadow-md shadow-indigo-500/25'
                     : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
                 }`}
               >

@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import { ATHLETES_DATA, LOCKED_TEAMS, COMPETITION_DAYS } from '../data/seedData';
 import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList } from 'lucide-react';
 
-export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDeleteCard }) {
+export default function DashboardTab({ 
+  events, 
+  cardSubmissions, 
+  onSaveCard, 
+  onDeleteCard,
+  paid2Coaches = [],
+  paid5Coaches = []
+}) {
   const [selectedCoach, setSelectedCoach] = useState('');
   
   // Card Form Inputs
@@ -148,7 +155,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
             <select
               value={selectedCoach}
               onChange={(e) => handleCoachSelect(e.target.value)}
-              className="w-full bg-[#0a2540]/90 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 font-semibold"
+              className="w-full bg-[#121316]/90 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 font-semibold"
             >
               <option value="">-- Choose Your Coach Profile --</option>
               {LOCKED_TEAMS.map(t => (
@@ -170,6 +177,22 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
               <div className="text-slate-300 mt-2 flex items-center gap-1">
                 <Shield className="w-4 h-4 text-emerald-400 inline" />
                 <span>Insurance Pick: <strong className="text-emerald-400">{currentTeam.ins}</strong> (£{getAthletePrice(currentTeam.ins)}m)</span>
+              </div>
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Leagues:</span>
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wide">
+                  🏆 Free
+                </span>
+                {paid2Coaches.includes(currentTeam.coach) && (
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 uppercase tracking-wide font-mono">
+                    🥈 £2 League
+                  </span>
+                )}
+                {paid5Coaches.includes(currentTeam.coach) && (
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide font-mono">
+                    🥇 £5 League
+                  </span>
+                )}
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {currentTeam.squad.map(ath => (
@@ -203,7 +226,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={mdAthlete}
                   onChange={(e) => setMdAthlete(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
                 >
                   {currentTeam.squad.map(ath => (
                     <option key={ath} value={ath}>{ath} (£{getAthletePrice(ath)}m)</option>
@@ -214,7 +237,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={mdDay}
                   onChange={(e) => setMdDay(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
                 >
                   {COMPETITION_DAYS.map(day => (
                     <option key={day} value={day}>{day}</option>
@@ -224,7 +247,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
 
               <button
                 onClick={() => submitCard('MOVING_DAY')}
-                className="w-full bg-[#635bff] hover:bg-[#7a73ff] text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-indigo-500/25 uppercase tracking-wider"
+                className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-indigo-500/25 uppercase tracking-wider"
               >
                 Save Moving Day Card
               </button>
@@ -245,7 +268,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={ltEventId}
                   onChange={(e) => setLtEventId(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-2 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-2 font-medium"
                 >
                   {events.map(evt => (
                     <option key={evt.id} value={evt.id}>
@@ -262,7 +285,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={ltAthlete}
                   onChange={(e) => setLtAthlete(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
                 >
                   {currentTeam.squad.map(ath => (
                     <option key={ath} value={ath}>{ath} (£{getAthletePrice(ath)}m)</option>
@@ -293,7 +316,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={htEventId}
                   onChange={(e) => setHtEventId(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
                 >
                   {events.map(evt => (
                     <option key={evt.id} value={evt.id}>
@@ -306,7 +329,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={htTarget}
                   onChange={(e) => handleTargetChangeForHotTag(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-3 font-medium"
                 >
                   {currentTeam.squad.map(ath => (
                     <option key={ath} value={ath}>{ath} (£{getAthletePrice(ath)}m)</option>
@@ -317,7 +340,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 <select
                   value={htReplacement}
                   onChange={(e) => setHtReplacement(e.target.value)}
-                  className="w-full bg-[#0a2540] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
+                  className="w-full bg-[#121316] border border-slate-700 rounded-lg p-2.5 text-white text-xs sm:text-sm mb-4 font-medium"
                 >
                   {validReplacements.map(ath => (
                     <option key={ath.name} value={ath.name}>
@@ -339,7 +362,7 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
 
           {/* Active Cards Table */}
           <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
-            <h3 className="text-lg font-extrabold text-white mb-4 flex items-center gap-2 uppercase tracking-wider">
+            <h3 className="font-display text-lg font-extrabold text-white mb-4 flex items-center gap-2 uppercase tracking-wider">
               <CheckCircle2 className="w-5 h-5 text-indigo-400" />
               <span>Your Active Power Card Assignments</span>
             </h3>
@@ -349,64 +372,110 @@ export default function DashboardTab({ events, cardSubmissions, onSaveCard, onDe
                 No Power Cards assigned yet. Make your selections using the cards above!
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-xs font-extrabold text-indigo-400 uppercase tracking-wider">
-                      <th className="py-3 px-4">Card Type</th>
-                      <th className="py-3 px-4">Target Event / Day</th>
-                      <th className="py-3 px-4">Athlete Assigned</th>
-                      <th className="py-3 px-4">Replacement (Hot Tag)</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800 text-sm font-medium">
-                    {coachCards.map((c, i) => {
-                      let isLocked = false;
-                      if (c.eventId) {
-                        const evt = events.find(e => e.id === c.eventId);
-                        if (evt && new Date() >= new Date(evt.startTime)) isLocked = true;
-                      }
+              <>
+                {/* Desktop: table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-xs font-extrabold text-indigo-400 uppercase tracking-wider">
+                        <th className="py-3 px-4">Card Type</th>
+                        <th className="py-3 px-4">Target Event / Day</th>
+                        <th className="py-3 px-4">Athlete Assigned</th>
+                        <th className="py-3 px-4">Replacement (Hot Tag)</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800 text-sm font-medium">
+                      {coachCards.map((c, i) => {
+                        let isLocked = false;
+                        if (c.eventId) {
+                          const evt = events.find(e => e.id === c.eventId);
+                          if (evt && new Date() >= new Date(evt.startTime)) isLocked = true;
+                        }
 
-                      return (
-                        <tr key={i} className="hover:bg-slate-800/40">
-                          <td className="py-3 px-4 font-bold text-white uppercase">
-                            {c.cardType.replace('_', ' ')}
-                          </td>
-                          <td className="py-3 px-4 text-slate-300">{c.targetEventOrDay}</td>
-                          <td className="py-3 px-4 font-semibold text-white">{c.targetAthlete}</td>
-                          <td className="py-3 px-4 text-cyan-400 font-semibold">
-                            {c.replacementAthlete || 'N/A'}
-                          </td>
-                          <td className="py-3 px-4">
-                            {isLocked ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase">
-                                <Lock className="w-3 h-3" /> LOCKED
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
-                                🟢 OPEN
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            {!isLocked && (
-                              <button
-                                onClick={() => onDeleteCard(c.coach, c.cardType)}
-                                className="p-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg border border-rose-500/30 transition-all"
-                                title="Remove Card"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                        return (
+                          <tr key={i} className="hover:bg-slate-800/40">
+                            <td className="py-3 px-4 font-bold text-white uppercase">
+                              {c.cardType.replace('_', ' ')}
+                            </td>
+                            <td className="py-3 px-4 text-slate-300">{c.targetEventOrDay}</td>
+                            <td className="py-3 px-4 font-semibold text-white">{c.targetAthlete}</td>
+                            <td className="py-3 px-4 text-cyan-400 font-semibold">
+                              {c.replacementAthlete || 'N/A'}
+                            </td>
+                            <td className="py-3 px-4">
+                              {isLocked ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase">
+                                  <Lock className="w-3 h-3" /> LOCKED
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+                                  🟢 OPEN
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              {!isLocked && (
+                                <button
+                                  onClick={() => onDeleteCard(c.coach, c.cardType)}
+                                  className="p-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg border border-rose-500/30 transition-all"
+                                  title="Remove Card"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile: one card per assignment */}
+                <div className="md:hidden space-y-3">
+                  {coachCards.map((c, i) => {
+                    let isLocked = false;
+                    if (c.eventId) {
+                      const evt = events.find(e => e.id === c.eventId);
+                      if (evt && new Date() >= new Date(evt.startTime)) isLocked = true;
+                    }
+
+                    return (
+                      <div key={i} className="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white text-sm uppercase">{c.cardType.replace('_', ' ')}</span>
+                          {isLocked ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase">
+                              <Lock className="w-3 h-3" /> LOCKED
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+                              🟢 OPEN
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-300 space-y-1">
+                          <div>Event / Day: <span className="text-white font-semibold">{c.targetEventOrDay}</span></div>
+                          <div>Athlete: <span className="text-white font-semibold">{c.targetAthlete}</span></div>
+                          {c.replacementAthlete && (
+                            <div>Replacement: <span className="text-cyan-400 font-semibold">{c.replacementAthlete}</span></div>
+                          )}
+                        </div>
+                        {!isLocked && (
+                          <button
+                            onClick={() => onDeleteCard(c.coach, c.cardType)}
+                            className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg border border-rose-500/30 transition-all text-xs font-bold uppercase"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Remove Card
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         </>

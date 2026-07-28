@@ -20,7 +20,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '20px', background: '#0b0f19', color: '#ef4444', fontFamily: 'sans-serif' }}>
+        <div style={{ padding: '20px', background: '#121316', color: '#ef4444', fontFamily: 'sans-serif' }}>
           <h2>Something went wrong loading the application.</h2>
           <pre style={{ background: '#1e293b', padding: '15px', borderRadius: '8px', color: '#f8fafc' }}>
             {this.state.error?.toString()}

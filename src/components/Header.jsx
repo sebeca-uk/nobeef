@@ -65,16 +65,16 @@ export default function Header({ activeTab, setActiveTab, events }) {
   return (
     <header className="w-full">
       {/* Top Stripe Gradient Line */}
-      <div className="h-1.5 w-full bg-gradient-to-r from-[#635bff] via-[#a855f7] to-[#00d4ff]" />
+      <div className="h-1.5 w-full bg-gradient-to-r from-[#e8462f] via-[#f2903d] to-[#f2b134]" />
 
       {/* Top Header Banner */}
-      <div className="bg-gradient-to-r from-[#0a2540] via-[#1e1b4b] to-[#0f172a] border-b border-indigo-500/20 py-7 px-4 text-center shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#121316] via-[#241a14] to-[#1a1b1f] border-b border-indigo-500/20 py-7 px-4 text-center shadow-2xl relative overflow-hidden">
         <div className="max-w-6xl mx-auto flex flex-col items-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
-            <Flame className="w-4 h-4 text-indigo-400 animate-pulse" /> 2026 CrossFit Games Official Edition
+            <Flame className="w-4 h-4 text-indigo-400" /> 2026 CrossFit Games Official Edition
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight stripe-gradient-text drop-shadow-sm">
-            NoBeef Fantasy League 2026
+          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight uppercase stripe-gradient-text drop-shadow-sm">
+            NoBeef Fantasy League
           </h1>
           <p className="text-slate-400 font-medium text-xs sm:text-sm mt-1.5 tracking-wider uppercase">
             Official Coach Dashboard • Live Leaderboard • RX+ Card Portal
@@ -84,12 +84,12 @@ export default function Header({ activeTab, setActiveTab, events }) {
 
       {/* Countdown Timer Banner */}
       <div className="max-w-4xl mx-auto px-4 -mt-4 mb-6 relative z-10">
-        <div className="bg-[#0f172a]/95 border border-indigo-500/30 rounded-2xl p-4 text-center shadow-2xl backdrop-blur-xl glow-indigo">
+        <div className="bg-[#1a1b1f]/95 border border-indigo-500/30 rounded-2xl p-4 text-center shadow-2xl backdrop-blur-xl glow-indigo">
           <div className="flex items-center justify-center gap-2 text-indigo-400 font-semibold text-xs sm:text-sm uppercase tracking-wider">
             <Timer className="w-4 h-4 text-indigo-400" />
             <span>{nextEventTitle}</span>
           </div>
-          <div className={`text-2xl sm:text-4xl font-black font-mono mt-1 ${isCompleted ? 'text-emerald-400' : 'text-white'}`}>
+          <div className={`scoreboard-num text-2xl sm:text-4xl mt-1 ${isCompleted ? 'text-emerald-400' : 'text-white'}`}>
             {timerText}
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
 
       {/* Desktop Navigation Bar (md and up) */}
       <div className="hidden md:block max-w-6xl mx-auto px-3 mb-6">
-        <nav className="flex flex-wrap items-center justify-center gap-2 p-2 rounded-2xl bg-[#0f172a]/80 border border-slate-800 shadow-xl backdrop-blur-xl">
+        <nav className="flex flex-wrap items-center justify-center gap-2 p-2 rounded-2xl bg-[#1a1b1f]/80 border border-slate-800 shadow-xl backdrop-blur-xl">
           {allNavItems.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -107,7 +107,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
                 onClick={() => handleTabClick(item.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs lg:text-sm transition-all duration-200 uppercase tracking-wider ${
                   isActive
-                    ? 'bg-[#635bff] text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
+                    ? 'bg-[#e8462f] text-white shadow-lg shadow-indigo-500/30 scale-[1.02]'
                     : 'bg-slate-800/40 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700/40'
                 }`}
               >
@@ -123,10 +123,10 @@ export default function Header({ activeTab, setActiveTab, events }) {
       {isMobileMoreOpen && (
         <>
           <div
-            className="md:hidden fixed inset-0 bg-[#0a2540]/80 backdrop-blur-md z-40 animate-in fade-in duration-200"
+            className="md:hidden fixed inset-0 bg-[#121316]/80 backdrop-blur-md z-40 animate-in fade-in duration-200"
             onClick={() => setIsMobileMoreOpen(false)}
           />
-          <div className="md:hidden fixed bottom-16 left-3 right-3 z-50 bg-[#0f172a] border border-indigo-500/30 rounded-2xl p-4 shadow-2xl space-y-2 animate-in slide-in-from-bottom-3 duration-200">
+          <div className="md:hidden fixed bottom-16 left-3 right-3 z-50 bg-[#1a1b1f] border border-indigo-500/30 rounded-2xl p-4 shadow-2xl space-y-2 animate-in slide-in-from-bottom-3 duration-200">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 px-1">
               <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Additional League Pages</span>
               <button
@@ -147,7 +147,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
                     onClick={() => handleTabClick(item.id)}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all uppercase tracking-wider ${
                       isActive
-                        ? 'bg-[#635bff] text-white shadow-md shadow-indigo-500/20'
+                        ? 'bg-[#e8462f] text-white shadow-md shadow-indigo-500/20'
                         : 'bg-slate-950 text-slate-200 hover:bg-slate-800 border border-slate-800'
                     }`}
                   >
@@ -165,7 +165,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
       )}
 
       {/* Single Mobile Sticky Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a2540]/95 border-t border-slate-800 px-2 py-2 backdrop-blur-xl shadow-2xl">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#121316]/95 border-t border-slate-800 px-2 py-2 backdrop-blur-xl shadow-2xl">
         <div className="flex items-center justify-around">
           {primaryNavItems.map(item => {
             const Icon = item.icon;

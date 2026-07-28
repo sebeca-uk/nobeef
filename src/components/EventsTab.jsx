@@ -6,7 +6,7 @@ export default function EventsTab({ events }) {
     <div className="space-y-6 font-sans">
       <div className="glass-card rounded-2xl p-5 border border-indigo-500/20">
         <div className="mb-6">
-          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
+          <h2 className="font-display text-2xl font-extrabold text-white flex items-center gap-2 uppercase tracking-wider">
             <Calendar className="w-6 h-6 text-indigo-400" />
             <span>2026 CrossFit Games Event Schedule</span>
           </h2>
@@ -27,7 +27,7 @@ export default function EventsTab({ events }) {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                   <div>
-                    <h3 className="text-xl font-extrabold text-white uppercase tracking-wide">{evt.name}</h3>
+                    <h3 className="font-display text-xl font-extrabold text-white uppercase tracking-wide">{evt.name}</h3>
                     <div className="text-xs text-indigo-400 font-semibold mt-0.5 flex items-center gap-2 uppercase">
                       <Clock className="w-3.5 h-3.5 inline text-indigo-400" />
                       <span>📅 Day: {evt.day} | Scheduled Start: {new Date(evt.startTime).toLocaleString()}</span>
