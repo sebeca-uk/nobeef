@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename="/nobeef">
         <Routes>
           {/* Landing Page */}
           <Route path="/" element={<LandingPage />} />
