@@ -132,7 +132,7 @@ export default function LeagueWizard() {
       if (!formData.gymSlug.trim()) stepErrors.gymSlug = 'Gym slug path is required';
       if (!formData.leagueName.trim()) stepErrors.leagueName = 'League title is required';
     }
-    if (step === 5) {
+    if (step === 6) {
       if (!formData.organizers.trim()) stepErrors.organizers = 'Organizer details are required';
       if (!formData.lockDeadline) stepErrors.lockDeadline = 'Lock deadline date is required';
       if (!formData.sitePassword.trim()) stepErrors.sitePassword = 'Site password is required';
@@ -237,14 +237,15 @@ export default function LeagueWizard() {
         {/* Step Indicator Header */}
         <div className="flex justify-between items-center pb-4 border-b border-slate-800">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">Step {step} of 6</span>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">Step {step} of 7</span>
             <h1 className="font-display text-xl font-extrabold text-white uppercase tracking-wider mt-0.5">
               {step === 1 && 'Select Competition'}
               {step === 2 && 'Gym Details'}
-              {step === 3 && 'Roster & Rules'}
-              {step === 4 && 'League Tiers'}
-              {step === 5 && 'Access & Secrets'}
-              {step === 6 && 'Review & Publish'}
+              {step === 3 && 'Roster & Salary'}
+              {step === 4 && 'RX+ Power Cards'}
+              {step === 5 && 'League Tiers'}
+              {step === 6 && 'Access & Secrets'}
+              {step === 7 && 'Review & Publish'}
             </h1>
           </div>
           <button 
@@ -374,15 +375,15 @@ export default function LeagueWizard() {
             </div>
           )}
 
-          {/* STEP 3: Roster & Rules */}
+          {/* STEP 3: Roster & Salary */}
           {step === 3 && (
             <div className="space-y-6">
               {/* Header Note */}
               <div className="flex items-start gap-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3.5 text-xs text-indigo-300">
                 <Sparkles className="w-4 h-4 shrink-0 text-indigo-400 mt-0.5" />
                 <div>
-                  <span className="font-bold block text-white mb-0.5">Customize Your League Format</span>
-                  Configure roster size, budget constraints, and active power cards. Default values match standard rules.
+                  <span className="font-bold block text-white mb-0.5">Configure Roster Size & Salary Budget</span>
+                  Configure roster size and budget constraints. Default values match standard rules.
                 </div>
               </div>
 
@@ -484,13 +485,26 @@ export default function LeagueWizard() {
                   </table>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Power Cards Config */}
+          {/* STEP 4: RX+ Power Cards */}
+          {step === 4 && (
+            <div className="space-y-6">
+              {/* Header Note */}
+              <div className="flex items-start gap-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3.5 text-xs text-indigo-300">
+                <Sparkles className="w-4 h-4 shrink-0 text-indigo-400 mt-0.5" />
+                <div>
+                  <span className="font-bold block text-white mb-0.5">Enable & Customize RX+ Power Cards</span>
+                  Choose which power cards are available for coaches in this league. Select a card to enable it, and customize its settings directly on the card.
+                </div>
+              </div>
+
               <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-4">
                 <div className="flex justify-between items-center border-b border-slate-800/80 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
                     <Shield className="w-4 h-4" />
-                    <span>RX+ Power Cards Rules</span>
+                    <span>Power Cards Settings</span>
                   </h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-slate-400 font-bold uppercase">Max plays/coach:</span>
@@ -505,56 +519,89 @@ export default function LeagueWizard() {
                   </div>
                 </div>
 
-                {/* Sub parameters for specific rules if enabled */}
-                <div className="grid grid-cols-2 gap-3 text-xs bg-slate-950 p-3 rounded-xl border border-slate-850/80">
-                  <div>
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-slate-500 block mb-1">Moving Day Multiplier</label>
-                    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={formData.movingDayMultiplier}
-                        onChange={(e) => handleNumberChange('movingDayMultiplier', e.target.value)}
-                        className="w-full bg-transparent border-none p-0 text-xs text-white focus:outline-none focus:ring-0 font-mono"
-                      />
-                      <span className="text-slate-500 font-bold">×</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-slate-500 block mb-1">LT Override (100pt)</label>
-                    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
-                      <input
-                        type="number"
-                        value={formData.lovelyTimeBonus100}
-                        onChange={(e) => handleNumberChange('lovelyTimeBonus100', e.target.value)}
-                        className="w-full bg-transparent border-none p-0 text-xs text-white focus:outline-none focus:ring-0 font-mono"
-                      />
-                      <span className="text-slate-500 font-bold">pts</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5">
+                {/* Card-based grid selection */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
-                    { key: 'MOVING_DAY', label: 'Moving Day Rule', desc: 'Apply a 1.5× multiplier to one athlete for an entire competition day.' },
-                    { key: 'LOVELY_TIME', label: 'Lovely Time Rule', desc: 'Override an athlete\'s event score with a guaranteed point value (+50/+25).' },
-                    { key: 'HOT_TAG', label: 'Hot Tag Swap', desc: 'Temporarily swap an active athlete for an unpicked competitor of equal/lesser price.' },
-                    { key: 'TRIPLE_THREAT', label: 'Triple Threat', desc: 'Triple the points earned by one active athlete in a single event.' },
-                    { key: 'SAFETY_NET', label: 'Safety Net', desc: 'If target athlete scores 0 points, they are replaced by the Insurance Athlete\'s score.' },
-                    { key: 'UNDERDOG', label: 'Underdog', desc: 'Double the points earned by one athlete in a single event if their price is ≤ £2.0m.' }
+                    {
+                      key: 'MOVING_DAY',
+                      label: 'Moving Day',
+                      desc: 'In sports, "Moving Day" is the day competitors try to make a big move up the leaderboard. When active, a coach can pick one active athlete on a specific day to receive a point multiplier for all events on that day. Ideal for when a star athlete has their best events scheduled.',
+                      customizable: true,
+                      renderSettings: () => (
+                        <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2" onClick={(e) => e.stopPropagation()}>
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-indigo-400 block">Customize Multiplier Value:</label>
+                          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 max-w-[120px]">
+                            <input
+                              type="number"
+                              step="0.1"
+                              min="1.1"
+                              max="3.0"
+                              value={formData.movingDayMultiplier}
+                              onChange={(e) => handleNumberChange('movingDayMultiplier', e.target.value)}
+                              className="w-full bg-transparent border-none p-0 text-xs text-white focus:outline-none focus:ring-0 font-mono"
+                            />
+                            <span className="text-slate-500 font-bold">×</span>
+                          </div>
+                          <p className="text-[9px] text-slate-550">Standard multiplier is 1.5×. Set between 1.1× and 3.0×.</p>
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'LOVELY_TIME',
+                      label: 'Lovely Time',
+                      desc: 'Named after a famous gym phrase, this card lets a coach guarantee points for one athlete on a specific event, regardless of their actual workout score. Proportional to event cap: 100-point events award the LT override; 50-point events award half. Ideal as a safety blanket for risky picks.',
+                      customizable: true,
+                      renderSettings: () => (
+                        <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2" onClick={(e) => e.stopPropagation()}>
+                          <label className="text-[9px] font-bold uppercase tracking-wider text-indigo-400 block">Guaranteed Points Override (100pt event):</label>
+                          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 max-w-[120px]">
+                            <input
+                              type="number"
+                              step="1"
+                              min="10"
+                              max="100"
+                              value={formData.lovelyTimeBonus100}
+                              onChange={(e) => handleNumberChange('lovelyTimeBonus100', e.target.value)}
+                              className="w-full bg-transparent border-none p-0 text-xs text-white focus:outline-none focus:ring-0 font-mono"
+                            />
+                            <span className="text-slate-500 font-bold">pts</span>
+                          </div>
+                          <p className="text-[9px] text-slate-550">Standard override is 50 pts. Set between 10 and 100 pts.</p>
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'HOT_TAG',
+                      label: 'Hot Tag Swap',
+                      desc: 'Allows a coach to temporarily swap an active athlete in their squad for any unpicked competitor in the athlete pool of equal or lesser value for a single event. Useful for tactical changes during the live competition.'
+                    },
+                    {
+                      key: 'TRIPLE_THREAT',
+                      label: 'Triple Threat',
+                      desc: 'Allows a coach to triple the points earned by one active athlete in a single event. High risk, high reward play!'
+                    },
+                    {
+                      key: 'SAFETY_NET',
+                      label: 'Safety Net',
+                      desc: 'If the target active athlete scores 0 points in the selected event (due to DNF, DNS, or injury), they are automatically replaced by the Insurance Athlete\'s score for that event.'
+                    },
+                    {
+                      key: 'UNDERDOG',
+                      label: 'Underdog',
+                      desc: 'Double the points earned by one active athlete in a single event, but only if their athlete price is ≤ £2.0m.'
+                    }
                   ].map(card => {
                     const isEnabled = formData.powerCards.includes(card.key);
                     
                     const getIcon = (key) => {
                       switch (key) {
-                        case 'MOVING_DAY': return <TrendingUp className="w-4 h-4 text-emerald-400" />;
-                        case 'LOVELY_TIME': return <Star className="w-4 h-4 text-purple-400" />;
-                        case 'HOT_TAG': return <Flame className="w-4 h-4 text-cyan-400" />;
-                        case 'TRIPLE_THREAT': return <Zap className="w-4 h-4 text-amber-400" />;
-                        case 'SAFETY_NET': return <Shield className="w-4 h-4 text-rose-400" />;
-                        case 'UNDERDOG': return <Award className="w-4 h-4 text-orange-400" />;
-                        default: return <Sparkles className="w-4 h-4 text-indigo-400" />;
+                        case 'MOVING_DAY': return <TrendingUp className="w-5 h-5 text-emerald-400" />;
+                        case 'LOVELY_TIME': return <Star className="w-5 h-5 text-purple-400" />;
+                        case 'HOT_TAG': return <Flame className="w-5 h-5 text-cyan-400" />;
+                        case 'TRIPLE_THREAT': return <Zap className="w-5 h-5 text-amber-400" />;
+                        case 'SAFETY_NET': return <Shield className="w-5 h-5 text-rose-400" />;
+                        case 'UNDERDOG': return <Award className="w-5 h-5 text-orange-400" />;
+                        default: return <Sparkles className="w-5 h-5 text-indigo-400" />;
                       }
                     };
 
@@ -568,28 +615,36 @@ export default function LeagueWizard() {
                     };
 
                     return (
-                      <label
+                      <div
                         key={card.key}
-                        className={`flex items-start gap-3 p-3 rounded-xl border text-xs cursor-pointer transition ${
+                        onClick={() => togglePowerCard(card.key)}
+                        className={`flex flex-col justify-between p-4 rounded-2xl border transition cursor-pointer text-left select-none relative overflow-hidden ${
                           isEnabled
-                            ? 'bg-indigo-500/5 border-indigo-500/40 text-white'
-                            : 'bg-slate-950/60 border-slate-850 text-slate-400 hover:border-slate-800'
+                            ? 'bg-indigo-500/5 border-indigo-500/60 shadow-[0_0_15px_rgba(99,102,241,0.15)]'
+                            : 'bg-slate-950 border-slate-850 hover:border-slate-800 text-slate-400'
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={isEnabled}
-                          onChange={() => togglePowerCard(card.key)}
-                          className="w-4 h-4 bg-slate-900 border-slate-700 rounded text-indigo-500 focus:ring-indigo-500 cursor-pointer mt-0.5 shrink-0"
-                        />
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-1.5 font-bold uppercase tracking-wide text-slate-200">
-                            {getIcon(card.key)}
-                            <span>{card.label}</span>
+                        {/* Selection indicator */}
+                        <div className="absolute top-3 right-3 flex items-center justify-center">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
+                            isEnabled ? 'bg-indigo-500 border-indigo-500 text-white' : 'border-slate-700'
+                          }`}>
+                            {isEnabled && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                           </div>
-                          <p className="text-[11px] text-slate-400 leading-relaxed">{card.desc}</p>
                         </div>
-                      </label>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`p-2 rounded-xl transition ${isEnabled ? 'bg-indigo-500/10' : 'bg-slate-900'}`}>
+                              {getIcon(card.key)}
+                            </div>
+                            <span className="font-extrabold text-sm uppercase tracking-wide text-white font-display">{card.label}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{card.desc}</p>
+                        </div>
+
+                        {isEnabled && card.customizable && card.renderSettings()}
+                      </div>
                     );
                   })}
                 </div>
@@ -597,8 +652,8 @@ export default function LeagueWizard() {
             </div>
           )}
 
-          {/* STEP 4: League Tiers */}
-          {step === 4 && (
+          {/* STEP 5: League Tiers */}
+          {step === 5 && (
             <div className="space-y-4">
               <p className="text-xs text-slate-400">
                 Choose the buy-in options coaches can enroll in. Standings will separate into distinct sub-leaderboards.
@@ -700,8 +755,8 @@ export default function LeagueWizard() {
             </div>
           )}
 
-          {/* STEP 5: Security & Passwords */}
-          {step === 5 && (
+          {/* STEP 6: Security & Passwords */}
+          {step === 6 && (
             <div className="space-y-4">
               <p className="text-xs text-slate-400">
                 Secure your league. The site password restricts roster viewing, while the admin password grants score inputs.
@@ -787,8 +842,8 @@ export default function LeagueWizard() {
             </div>
           )}
 
-          {/* STEP 6: Review & Publish */}
-          {step === 6 && (
+          {/* STEP 7: Review & Publish */}
+          {step === 7 && (
             <div className="space-y-4">
               <p className="text-xs text-slate-400">
                 Confirm your configuration before launching. You can change rules and schedules inside the Admin control panel later.
@@ -810,6 +865,10 @@ export default function LeagueWizard() {
                 <div className="flex justify-between border-b border-slate-900 pb-2">
                   <span className="text-slate-500 uppercase font-semibold">Insurance limit</span>
                   <span className="text-white font-bold font-mono">≤ £{formData.insuranceMaxPrice}m</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-900 pb-2">
+                  <span className="text-slate-500 uppercase font-semibold">Active Power Cards</span>
+                  <span className="text-white font-bold">{formData.powerCards.length} Enabled</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-900 pb-2">
                   <span className="text-slate-500 uppercase font-semibold">Lock deadline</span>
@@ -841,7 +900,7 @@ export default function LeagueWizard() {
               </button>
             )}
 
-            {step < 6 ? (
+            {step < 7 ? (
               <button
                 type="button"
                 onClick={nextStep}
