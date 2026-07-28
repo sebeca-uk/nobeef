@@ -34,6 +34,8 @@ export default function App() {
 
   // Site Access Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // If it's a test/admin environment without a site password, bypass
+    if (!league.sitePassword) return true;
     return localStorage.getItem(`${league.id}_site_access`) === 'true';
   });
   const [sitePassword, setSitePassword] = useState('');
