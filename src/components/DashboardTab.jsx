@@ -127,7 +127,7 @@ export default function DashboardTab({
     });
   };
 
-  const checkIsUnlocked = (team) => {
+  function checkIsUnlocked(team) {
     if (!team) return false;
     if (team.ownerId && user && team.ownerId === user.uid) return true;
     if (team.ownerEmail && user && team.ownerEmail.toLowerCase() === user.email.toLowerCase()) return true;
