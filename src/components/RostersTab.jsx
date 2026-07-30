@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { useLeague } from '../context/LeagueContext';
 import { Lock, Shield, Flame, Filter, DollarSign } from 'lucide-react';
+import LeagueLockScreen from './LeagueLockScreen';
 
 export default function RostersTab({ paid2Coaches = [], paid5Coaches = [] }) {
   const league = useLeague();
+  
+  if (!league.isUnlocked) {
+    return <LeagueLockScreen message="The rosters and coach selections are locked. Enter the league access code to unlock." />;
+  }
+
   const [rosterFilter, setRosterFilter] = useState('ALL'); // 'ALL', 'PAID_2', 'PAID_5'
 
   const getAthletePrice = (name) => {

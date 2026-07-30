@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLeague, getAthletePrice as getAthletePriceHelper } from '../context/LeagueContext';
 import { useAuth } from '../context/AuthContext';
 import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList, Zap, Award } from 'lucide-react';
+import LeagueLockScreen from './LeagueLockScreen';
 
 export default function DashboardTab({ 
   events, 
@@ -13,6 +14,11 @@ export default function DashboardTab({
 }) {
   const league = useLeague();
   const { user } = useAuth();
+  
+  if (!league.isUnlocked) {
+    return <LeagueLockScreen message="The coach dashboard and roster configuration are locked. Enter the league access code to unlock." />;
+  }
+
   const [selectedCoach, setSelectedCoach] = useState('');
   
   // Registration State

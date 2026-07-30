@@ -217,6 +217,10 @@ export default function LeaderboardTab({
   const top3 = leagueCoaches[2];
 
   const toggleExpand = (coachName) => {
+    if (!league.isUnlocked) {
+      alert("🔒 Squad details are locked! Please enter the league access code on the Rosters or Dashboard tabs to unlock.");
+      return;
+    }
     setExpandedCoach(prev => prev === coachName ? null : coachName);
   };
 
@@ -545,7 +549,9 @@ export default function LeaderboardTab({
                             )}
                           </div>
                           <div className="flex items-center gap-1.5 text-[11px] text-slate-400 truncate mt-0.5 font-medium">
-                            <span className="truncate">{row.squad.join(', ')}</span>
+                            <span className="truncate">
+                              {league.isUnlocked ? row.squad.join(', ') : '🔒 Squad details hidden'}
+                            </span>
                           </div>
                         </div>
                       </div>

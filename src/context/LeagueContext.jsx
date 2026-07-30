@@ -112,10 +112,55 @@ export const formatBudget = (spent, cap, currency = '£') => {
   return `${currency}${spent.toFixed(1)}m / ${currency}${cap}m`;
 };
 
+import { useAuth } from './AuthContext';
+
 export function LeagueProvider({ children }) {
+  const { user } = useAuth();
   const [league, setLeague] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (!league) return;
+    
+    // 1. If there's no password/join code protection set at all, it's open
+    if (!league.sitePassword && !league.joinCode) {
+      setIsUnlocked(true);
+      return;
+    }
+    
+    // 2. If already unlocked in local storage
+    if (localStorage.getItem(`nobeef_${league.id}_unlocked`) === 'true') {
+      setIsUnlocked(true);
+      return;
+    }
+    
+    // 3. If logged in user is the owner of a team in the league
+    if (user && league.lockedTeams && league.lockedTeams.some(t => 
+      (t.ownerId && t.ownerId === user.uid) || 
+      (t.ownerEmail && t.ownerEmail.toLowerCase() === user.email.toLowerCase())
+    )) {
+      setIsUnlocked(true);
+      return;
+    }
+    
+    setIsUnlocked(false);
+  }, [league, user]);
+
+  const unlockLeague = (code) => {
+    if (!league) return false;
+    const cleanCode = code.trim().toLowerCase();
+    const matches = cleanCode === (league.sitePassword || '').toLowerCase() || 
+                    cleanCode === (league.joinCode || '').toLowerCase();
+    
+    if (matches) {
+      localStorage.setItem(`nobeef_${league.id}_unlocked`, 'true');
+      setIsUnlocked(true);
+      return true;
+    }
+    return false;
+  };
 
   const loadLeague = () => {
     try {
@@ -268,7 +313,7 @@ export function LeagueProvider({ children }) {
     window.dispatchEvent(new Event('nobeef_data_change'));
   };
 
-  const contextValue = league ? { ...league, updateLeagueRules, updateLeagueTeams, updateLeaguePasswords } : null;
+  const contextValue = league ? { ...league, isUnlocked, unlockLeague, updateLeagueRules, updateLeagueTeams, updateLeaguePasswords } : null;
 
   if (loading) {
     return (
