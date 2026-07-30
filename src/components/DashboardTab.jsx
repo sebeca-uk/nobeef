@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLeague, getAthletePrice as getAthletePriceHelper } from '../context/LeagueContext';
+import { useAuth } from '../context/AuthContext';
 import { Flame, Sparkles, RefreshCw, AlertTriangle, CheckCircle2, Trash2, Shield, Info, Lock, ClipboardList, Zap, Award } from 'lucide-react';
 
 export default function DashboardTab({ 
@@ -11,8 +12,27 @@ export default function DashboardTab({
   paid5Coaches = []
 }) {
   const league = useLeague();
+  const { user } = useAuth();
   const [selectedCoach, setSelectedCoach] = useState('');
   
+  // Registration State
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [newCoachName, setNewCoachName] = useState('');
+  const [newCoachPassword, setNewCoachPassword] = useState('');
+  const [draftSquad, setDraftSquad] = useState([]);
+  const [draftIns, setDraftIns] = useState('');
+
+  // Lock Screen States
+  const [coachPasswordInput, setCoachPasswordInput] = useState('');
+  const [unlockedCoaches, setUnlockedCoaches] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(`nobeef_${league.id}_unlocked_coaches`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   // Card Form Inputs
   const [mdAthlete, setMdAthlete] = useState('');
   const [mdDay, setMdDay] = useState(league.competitionDays[0]);
@@ -51,6 +71,9 @@ export default function DashboardTab({
     ? currentTeam.squad.reduce((sum, ath) => sum + getAthletePrice(ath), 0)
     : 0;
 
+  const draftSpent = draftSquad.reduce((sum, name) => sum + getAthletePrice(name), 0);
+  const isUnlocked = checkIsUnlocked(currentTeam);
+
   // Selected event for Lovely Time preview
   const selectedLtEvt = events.find(e => e.id === ltEventId) || events[0];
   const isLovelyTime50Pt = selectedLtEvt?.maxPoints === 50;
@@ -65,6 +88,7 @@ export default function DashboardTab({
 
   const handleCoachSelect = (coachName) => {
     setSelectedCoach(coachName);
+    setIsRegistering(false);
     const team = league.lockedTeams.find(t => t.coach === coachName);
     if (team && team.squad.length > 0) {
       setMdAthlete(team.squad[0]);
@@ -87,6 +111,93 @@ export default function DashboardTab({
       setHtReplacement(replacements[0].name);
     } else {
       setHtReplacement('');
+    }
+  };
+
+  const handleToggleDraftAthlete = (athName) => {
+    setDraftSquad(prev => {
+      if (prev.includes(athName)) {
+        return prev.filter(name => name !== athName);
+      }
+      if (prev.length >= (league.rules.rosterMax || 5)) {
+        alert(`You can select a maximum of ${league.rules.rosterMax || 5} athletes!`);
+        return prev;
+      }
+      return [...prev, athName];
+    });
+  };
+
+  const checkIsUnlocked = (team) => {
+    if (!team) return false;
+    if (team.ownerId && user && team.ownerId === user.uid) return true;
+    if (team.ownerEmail && user && team.ownerEmail.toLowerCase() === user.email.toLowerCase()) return true;
+    if (!team.ownerId && !team.password) return true;
+    if (team.password && unlockedCoaches[team.coach] === team.password) return true;
+    return false;
+  };
+
+  const handlePasswordUnlock = (e) => {
+    e.preventDefault();
+    if (!currentTeam) return;
+    if (coachPasswordInput === currentTeam.password) {
+      const updated = { ...unlockedCoaches, [currentTeam.coach]: currentTeam.password };
+      setUnlockedCoaches(updated);
+      sessionStorage.setItem(`nobeef_${league.id}_unlocked_coaches`, JSON.stringify(updated));
+      setCoachPasswordInput('');
+    } else {
+      alert('⛔ Incorrect Coach Password!');
+    }
+  };
+
+  const handleRegisterCoach = (e) => {
+    e.preventDefault();
+    if (!newCoachName.trim()) return alert('Please enter a Coach Name!');
+    if (league.lockedTeams.some(t => t.coach.toLowerCase() === newCoachName.trim().toLowerCase())) {
+      return alert('A coach with this name already exists in the league!');
+    }
+    const squadMin = league.rules.rosterMin || 3;
+    const squadMax = league.rules.rosterMax || 5;
+    if (draftSquad.length < squadMin || draftSquad.length > squadMax) {
+      return alert(`Your squad must have between ${squadMin} and ${squadMax} athletes!`);
+    }
+    if (draftSpent > (league.rules.salaryCap || 11.5)) {
+      return alert(`Your squad exceeds the Salary Cap of £${league.rules.salaryCap || 11.5}m!`);
+    }
+    if (!draftIns) {
+      return alert('Please select an Insurance Athlete!');
+    }
+    if (draftSquad.includes(draftIns)) {
+      return alert('Your Insurance Athlete cannot also be in your active squad!');
+    }
+    const insCost = getAthletePrice(draftIns);
+    if (insCost > (league.rules.insuranceMaxPrice || 2.0)) {
+      return alert(`Your Insurance Athlete must cost ≤ £${league.rules.insuranceMaxPrice || 2.0}m!`);
+    }
+    if (!user && !newCoachPassword.trim()) {
+      return alert('You must enter a Coach Password when registering without an account!');
+    }
+
+    const newTeam = {
+      coach: newCoachName.trim(),
+      squad: draftSquad,
+      ins: draftIns,
+      ownerId: user ? user.uid : null,
+      ownerEmail: user ? user.email : null,
+      password: !user ? newCoachPassword : null
+    };
+
+    if (typeof league.updateLeagueTeams === 'function') {
+      league.updateLeagueTeams([...league.lockedTeams, newTeam]);
+      alert('🎉 Roster successfully submitted and locked!');
+      setSelectedCoach(newTeam.coach);
+      setIsRegistering(false);
+      // Reset form
+      setNewCoachName('');
+      setNewCoachPassword('');
+      setDraftSquad([]);
+      setDraftIns('');
+    } else {
+      alert('Error: updateLeagueTeams is not available in context.');
     }
   };
 
@@ -201,9 +312,20 @@ export default function DashboardTab({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Select Your Coach Name:
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Select Your Coach Name:
+              </label>
+              <button
+                onClick={() => {
+                  setIsRegistering(!isRegistering);
+                  setSelectedCoach('');
+                }}
+                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 uppercase underline"
+              >
+                {isRegistering ? 'Cancel Registration' : 'Register New Coach'}
+              </button>
+            </div>
             <select
               value={selectedCoach}
               onChange={(e) => handleCoachSelect(e.target.value)}
@@ -258,7 +380,168 @@ export default function DashboardTab({
         </div>
       </div>
 
-      {selectedCoach && (
+      {isRegistering && (
+        <form onSubmit={handleRegisterCoach} className="glass-card rounded-2xl p-5 border border-indigo-500/30 space-y-6">
+          <div className="border-b border-slate-800 pb-3">
+            <h3 className="text-lg font-bold text-white uppercase tracking-wider">Draft Your Fantasy Roster</h3>
+            <p className="text-xs text-slate-400 mt-1">Select your team athletes and register your coach name to join the league.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Coach Name:</label>
+              <input
+                type="text"
+                placeholder="e.g. Clo"
+                value={newCoachName}
+                onChange={(e) => setNewCoachName(e.target.value)}
+                className="w-full bg-[#121316] border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 font-semibold"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Insurance Athlete (≤ {league.rules.currency}{league.rules.insuranceMaxPrice || 2.0}m):
+              </label>
+              <select
+                value={draftIns}
+                onChange={(e) => setDraftIns(e.target.value)}
+                className="w-full bg-[#121316] border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 font-semibold"
+                required
+              >
+                <option value="">-- Select Insurance Athlete --</option>
+                {league.athletes
+                  .filter(a => a.price <= (league.rules.insuranceMaxPrice || 2.0) && !draftSquad.includes(a.name))
+                  .map(a => (
+                    <option key={a.name} value={a.name}>
+                      {a.name} ({league.rules.currency}{a.price}m - {a.gender})
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              {user ? (
+                <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-3.5 text-xs">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Profile Ownership</span>
+                  <span className="text-emerald-400 font-bold">🛡️ Auto-Linking to account: {user.email} (No password needed)</span>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Profile Password (Option A):
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter a password to protect your coach dashboard"
+                    value={newCoachPassword}
+                    onChange={(e) => setNewCoachPassword(e.target.value)}
+                    className="w-full bg-[#121316] border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 font-mono"
+                    required
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">Or sign in (Option B) via the header to link this roster to your Google/Email account automatically.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-slate-950 p-4 rounded-xl border border-slate-850 flex justify-between items-center text-xs font-bold">
+            <div>
+              <span className="text-slate-400 block uppercase text-[10px]">Salary Budget Spent</span>
+              <span className={`text-base font-mono ${draftSpent > (league.rules.salaryCap || 11.5) ? 'text-rose-400 animate-pulse' : 'text-indigo-400'}`}>
+                {league.rules.currency}{draftSpent.toFixed(1)}m / {league.rules.currency}{league.rules.salaryCap || 11.5}m
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="text-slate-400 block uppercase text-[10px]">Roster Slots</span>
+              <span className="text-base text-white font-mono">
+                {draftSquad.length} / {league.rules.rosterMax || 5}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+              Select Squad Athletes ({league.rules.rosterMin || 3} - {league.rules.rosterMax || 5} required):
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[350px] overflow-y-auto pr-2">
+              {league.athletes.map(a => {
+                const isSelected = draftSquad.includes(a.name);
+                return (
+                  <button
+                    key={a.name}
+                    type="button"
+                    onClick={() => handleToggleDraftAthlete(a.name)}
+                    className={`p-3 rounded-xl border text-left flex justify-between items-center transition-all ${
+                      isSelected
+                        ? 'bg-indigo-600/25 border-indigo-500/80 text-white shadow-md'
+                        : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <span className="font-semibold text-xs sm:text-sm block text-white">{a.name}</span>
+                      <span className="text-[10px] text-slate-400 block mt-0.5">{a.gender} • {a.rank}</span>
+                    </div>
+                    <span className="text-xs font-bold font-mono text-indigo-400">
+                      {league.rules.currency}{a.price}m
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-500/20 uppercase tracking-wider flex items-center justify-center gap-1.5"
+          >
+            Submit & Lock Roster
+          </button>
+        </form>
+      )}
+
+      {selectedCoach && !isUnlocked && (
+        <div className="max-w-md mx-auto my-12 glass-card rounded-2xl p-6 border border-rose-500/30 text-center shadow-2xl space-y-6">
+          <div className="w-12 h-12 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center justify-center mx-auto text-rose-450">
+            <Lock className="w-6 h-6 text-rose-400" />
+          </div>
+          <div>
+            <h3 className="font-display text-xl font-extrabold text-white uppercase tracking-wider">Coach Profile Locked</h3>
+            {currentTeam.ownerEmail ? (
+              <p className="text-xs text-slate-400 mt-2">
+                This coach profile is linked to <strong className="text-slate-200">{currentTeam.ownerEmail}</strong>. 
+                Please sign in with that Google/Email account via the header to access this dashboard.
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400 mt-2 font-medium">
+                This coach profile is password-protected. Enter the profile password to manage rosters and play cards.
+              </p>
+            )}
+          </div>
+
+          {!currentTeam.ownerEmail && (
+            <form onSubmit={handlePasswordUnlock} className="space-y-4">
+              <input
+                type="password"
+                placeholder="Enter Coach Password"
+                value={coachPasswordInput}
+                onChange={(e) => setCoachPasswordInput(e.target.value)}
+                className="w-full bg-[#121316] border border-slate-700 rounded-xl px-4 py-3 text-white text-center text-sm focus:outline-none focus:border-indigo-550 font-mono"
+                required
+              />
+              <button
+                type="submit"
+                className="w-full bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-extrabold py-3 rounded-xl text-sm transition-all uppercase tracking-wider shadow-lg shadow-indigo-500/20"
+              >
+                Unlock Dashboard
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+
+      {selectedCoach && isUnlocked && (
         <>
           {/* Cards Assignment Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

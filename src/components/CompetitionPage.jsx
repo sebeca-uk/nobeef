@@ -25,7 +25,7 @@ const COMPETITION_DATA = {
     events: SEED_EVENTS,
     competitionDays: COMPETITION_DAYS,
     leagues: [
-      { gymId: 'nobeef', gymName: 'NoBeef', coachCount: 25, status: 'active' },
+      { gymId: 'nobeef', gymName: 'NoBeef', leagueSlug: 'nobeef-crossfit-games-2026', coachCount: 25, status: 'active' },
     ],
   },
 };
@@ -125,8 +125,8 @@ export default function CompetitionPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {competition.leagues.map(league => (
               <Link
-                key={league.gymId}
-                to={`/g/${league.gymId}/${competitionSlug}`}
+                key={league.leagueSlug}
+                to={`/l/${league.leagueSlug}`}
                 className="group glass-card rounded-xl p-5 border border-slate-800 hover:border-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5"
               >
                 <div className="flex items-center gap-3 mb-3">
@@ -150,13 +150,16 @@ export default function CompetitionPage() {
             ))}
 
             {/* Create League CTA */}
-            <div className="glass-card rounded-xl p-5 border border-dashed border-slate-700 flex flex-col items-center justify-center text-center min-h-[140px]">
-              <Flame className="w-6 h-6 text-slate-500 mb-2" />
-              <p className="text-xs text-slate-400 font-semibold">Create a league for this competition</p>
+            <Link
+              to="/create-league"
+              className="group glass-card rounded-xl p-5 border border-dashed border-slate-700 hover:border-indigo-500/50 transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[140px] cursor-pointer hover:-translate-y-0.5"
+            >
+              <Flame className="w-6 h-6 text-slate-500 group-hover:text-indigo-400 transition-colors mb-2" />
+              <p className="text-xs text-slate-400 font-semibold group-hover:text-slate-300">Create a league for this competition</p>
               <span className="mt-2 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
-                Coming in Phase 2
+                Start Wizard
               </span>
-            </div>
+            </Link>
           </div>
         </div>
 

@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Shield, Calendar, BarChart3, Tag, Lock, ClipboardList, Timer, Flame, Sparkles, Menu, X, ChevronRight, HelpCircle } from 'lucide-react';
+import { Trophy, Shield, Calendar, BarChart3, Tag, Lock, ClipboardList, Timer, Flame, Sparkles, Menu, X, ChevronRight, HelpCircle, LogIn, LogOut } from 'lucide-react';
 import { useLeague } from '../context/LeagueContext';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './AuthModal';
 
 export default function Header({ activeTab, setActiveTab, events }) {
   const league = useLeague();
+  const { user, logout } = useAuth();
   const [timerText, setTimerText] = useState('00d : 00h : 00m : 00s');
   const [nextEventTitle, setNextEventTitle] = useState('Detecting Next Event...');
   const [isCompleted, setIsCompleted] = useState(false);
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -51,7 +55,6 @@ export default function Header({ activeTab, setActiveTab, events }) {
 
   const moreNavItems = [
     { id: 'faq', label: 'FAQ & Rules', icon: HelpCircle, badge: 'FAQ' },
-    { id: 'snapshot', label: 'Draft Analytics', icon: BarChart3, badge: 'Analytics' },
     { id: 'pricing', label: 'Athlete Pricing Guide', icon: Tag, badge: 'Pricing' },
     { id: 'admin', label: 'Admin Portal', icon: Shield, badge: 'Admin' },
   ];
@@ -71,6 +74,34 @@ export default function Header({ activeTab, setActiveTab, events }) {
 
       {/* Top Header Banner */}
       <div className="bg-gradient-to-r from-[#121316] via-[#241a14] to-[#1a1b1f] border-b border-indigo-500/20 py-7 px-4 text-center shadow-2xl relative overflow-hidden">
+        
+        {/* Auth Panel Floating */}
+        <div className="absolute top-4 right-4 z-20">
+          {user ? (
+            <div className="flex items-center gap-2 bg-[#121316]/90 border border-indigo-500/30 px-3 py-1.5 rounded-xl text-xs">
+              <div className="w-6 h-6 bg-indigo-500/20 rounded-full flex items-center justify-center text-indigo-400 font-bold uppercase">
+                {user.displayName ? user.displayName[0] : 'U'}
+              </div>
+              <span className="text-slate-200 font-semibold hidden sm:inline">{user.displayName || user.email}</span>
+              <button 
+                onClick={logout}
+                className="text-slate-405 hover:text-rose-450 ml-1 transition"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAuthOpen(true)}
+              className="flex items-center gap-1.5 bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-md shadow-red-500/15 uppercase tracking-wider"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign In</span>
+            </button>
+          )}
+        </div>
+
         <div className="max-w-6xl mx-auto flex flex-col items-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
             <Flame className="w-4 h-4 text-indigo-400" /> {league.competitionName} — {league.tagline}
@@ -202,6 +233,7 @@ export default function Header({ activeTab, setActiveTab, events }) {
           </button>
         </div>
       </div>
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </header>
   );
 }

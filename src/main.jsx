@@ -7,6 +7,7 @@ import CompetitionPage from './components/CompetitionPage.jsx';
 import GymPage from './components/GymPage.jsx';
 import LeagueWizard from './components/LeagueWizard.jsx';
 import { LeagueProvider } from './context/LeagueContext.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 import './index.css';
 
 class ErrorBoundary extends React.Component {
@@ -51,41 +52,53 @@ class ErrorBoundary extends React.Component {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <BrowserRouter basename="/nobeef">
-        <Routes>
-          {/* Landing Page */}
-          <Route path="/" element={<LandingPage />} />
+      <AuthProvider>
+        <BrowserRouter basename="/nobeef">
+          <Routes>
+            {/* Landing Page */}
+            <Route path="/" element={<LandingPage />} />
 
-          {/* Create League Wizard */}
-          <Route path="/create-league" element={<LeagueWizard />} />
+            {/* Create League Wizard */}
+            <Route path="/create-league" element={<LeagueWizard />} />
 
-          {/* Competition Detail */}
-          <Route path="/c/:competitionSlug" element={<CompetitionPage />} />
+            {/* Competition Detail */}
+            <Route path="/c/:competitionSlug" element={<CompetitionPage />} />
 
-          {/* Gym Profile */}
-          <Route path="/g/:gymSlug" element={<GymPage />} />
+            {/* Gym Profile */}
+            <Route path="/g/:gymSlug" element={<GymPage />} />
 
-          {/* League Portal — the full fantasy league experience */}
-          <Route
-            path="/g/:gymSlug/:competitionSlug"
-            element={
-              <LeagueProvider>
-                <App />
-              </LeagueProvider>
-            }
-          />
+            {/* League Portal — the full fantasy league experience */}
+            <Route
+              path="/l/:leagueSlug"
+              element={
+                <LeagueProvider>
+                  <App />
+                </LeagueProvider>
+              }
+            />
 
-          {/* Legacy route — backwards compatibility for the original NoBeef league */}
-          <Route
-            path="/league"
-            element={
-              <LeagueProvider>
-                <App />
-              </LeagueProvider>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+            {/* Legacy gym/competition route — backwards compatibility for older links */}
+            <Route
+              path="/g/:gymSlug/:competitionSlug"
+              element={
+                <LeagueProvider>
+                  <App />
+                </LeagueProvider>
+              }
+            />
+
+            {/* Legacy route — backwards compatibility for the original NoBeef league */}
+            <Route
+              path="/league"
+              element={
+                <LeagueProvider>
+                  <App />
+                </LeagueProvider>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 );

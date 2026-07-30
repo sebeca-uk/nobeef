@@ -30,6 +30,7 @@ const DEMO_GYMS = [
     name: 'NoBeef',
     leagueCount: 1,
     competitionSlug: 'crossfit-games-2026',
+    leagueSlug: 'nobeef-crossfit-games-2026'
   },
 ];
 
@@ -45,9 +46,27 @@ export default function LandingPage() {
       name: l.gymName,
       leagueCount: 1,
       competitionSlug: l.competitionId,
-      brandColor: l.brandColor || 'indigo'
+      leagueSlug: l.leagueSlug || l.id,
+      brandColor: l.brandColor || 'indigo',
+      joinCode: l.joinCode
     }));
     return [...DEMO_GYMS, ...mappedCustom];
+  };
+
+  const handleJoin = (e) => {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+    const code = joinCode.trim().toUpperCase();
+    const leagues = getCombinedLeagues();
+    const target = leagues.find(l => 
+      (l.joinCode && l.joinCode.toUpperCase() === code) || 
+      l.id.toUpperCase() === code
+    );
+    if (target) {
+      window.location.href = `/l/${target.leagueSlug}`;
+    } else {
+      alert("Invalid join code. Please try again.");
+    }
   };
 
   const activeLeagues = getCombinedLeagues();
@@ -89,7 +108,7 @@ export default function LandingPage() {
 
           {/* Join Code Input */}
           <div className="mt-8 max-w-md mx-auto">
-            <div className="flex gap-2">
+            <form onSubmit={handleJoin} className="flex gap-2">
               <div className="relative flex-1">
                 <Zap className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -100,11 +119,11 @@ export default function LandingPage() {
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition font-mono tracking-wider placeholder:text-slate-500"
                 />
               </div>
-              <button className="bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-bold px-5 py-3 rounded-xl text-sm transition-all shadow-lg shadow-red-500/20 flex items-center gap-1.5">
+              <button type="submit" className="bg-[#e8462f] hover:bg-[#ff6a4d] text-white font-bold px-5 py-3 rounded-xl text-sm transition-all shadow-lg shadow-red-500/20 flex items-center gap-1.5">
                 Join
                 <ArrowRight className="w-4 h-4" />
               </button>
-            </div>
+            </form>
             <p className="text-[11px] text-slate-500 mt-2">
               Got a join code from your gym? Enter it above to jump straight into your league.
             </p>
@@ -209,8 +228,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {activeLeagues.map(gym => (
               <Link
-                key={gym.id}
-                to={`/g/${gym.id}/${gym.competitionSlug}`}
+                key={gym.leagueSlug}
+                to={`/l/${gym.leagueSlug}`}
                 className="group glass-card rounded-xl p-4 border border-slate-800 hover:border-indigo-500/40 transition-all duration-200 flex items-center gap-4"
               >
                 <div className={`w-10 h-10 bg-gradient-to-tr ${colorGradients[gym.brandColor] || 'from-amber-500 to-red-600'} rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0`}>

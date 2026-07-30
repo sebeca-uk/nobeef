@@ -62,6 +62,8 @@ export default function AdminTab({
   const [rulesLovelyTimeBonus100, setRulesLovelyTimeBonus100] = useState(league.rules.lovelyTimeBonus100);
   const [rulesLovelyTimeBonus50, setRulesLovelyTimeBonus50] = useState(league.rules.lovelyTimeBonus50);
   const [rulesPowerCards, setRulesPowerCards] = useState(league.rules.powerCards || ['MOVING_DAY', 'LOVELY_TIME', 'HOT_TAG']);
+  const [rulesSitePassword, setRulesSitePassword] = useState(league.sitePassword || '');
+  const [rulesAdminPassword, setRulesAdminPassword] = useState(league.adminPassword || '');
 
   const handleToggleRulePowerCard = (cardKey) => {
     setRulesPowerCards(prev => 
@@ -84,7 +86,10 @@ export default function AdminTab({
       lovelyTimeBonus50: Number(rulesLovelyTimeBonus50),
       powerCards: rulesPowerCards
     });
-    alert('✅ League rules and power card configurations updated successfully!');
+    if (typeof league.updateLeaguePasswords === 'function') {
+      league.updateLeaguePasswords(rulesSitePassword.trim().toLowerCase(), rulesAdminPassword.trim().toLowerCase());
+    }
+    alert('✅ League rules, secrets, and power card configurations updated successfully!');
   };
 
   const handleAdminLogin = (e) => {
@@ -213,6 +218,22 @@ export default function AdminTab({
           >
             Lock Panel
           </button>
+        </div>
+
+        {/* League Invite Details Display for Admin */}
+        <div className="bg-[#1a1b1f]/90 border border-slate-800 rounded-2xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium">
+          <div className="p-3 bg-slate-950 border border-slate-850 rounded-xl">
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-0.5">Invite Join Code</span>
+            <span className="text-emerald-400 font-mono font-bold text-base tracking-wider">{league.joinCode || 'N/A'}</span>
+          </div>
+          <div className="p-3 bg-slate-950 border border-slate-850 rounded-xl">
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-0.5">Site Entry Password</span>
+            <span className="text-white font-mono text-sm font-semibold">{league.sitePassword || 'N/A'}</span>
+          </div>
+          <div className="p-3 bg-slate-950 border border-slate-850 rounded-xl">
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-0.5">Admin Portal Password</span>
+            <span className="text-white font-mono text-sm font-semibold">{league.adminPassword || 'N/A'}</span>
+          </div>
         </div>
 
         {/* Sub Navigation */}
@@ -636,6 +657,26 @@ export default function AdminTab({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Site Entry Password (Access):</label>
+                <input
+                  type="text"
+                  value={rulesSitePassword}
+                  onChange={(e) => setRulesSitePassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Admin Portal Password:</label>
+                <input
+                  type="text"
+                  value={rulesAdminPassword}
+                  onChange={(e) => setRulesAdminPassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-white font-mono"
+                />
+              </div>
+
               <div>
                 <label className="block text-slate-300 font-bold uppercase tracking-wider mb-1">Salary Cap Budget (£m):</label>
                 <input

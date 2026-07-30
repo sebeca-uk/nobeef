@@ -105,7 +105,7 @@ export default function PricingTab() {
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-right scoreboard-num text-indigo-400">
-                    {league.rules.currency}{a.price.toFixed(1)}m
+                    {league.rules.currency}{(a.price || 0).toFixed(1)}m
                   </td>
                 </tr>
               ))}
@@ -127,7 +127,7 @@ export default function PricingTab() {
                 </span>
               </div>
               <div className="scoreboard-num text-indigo-400 text-sm shrink-0">
-                {league.rules.currency}{a.price.toFixed(1)}m
+                {league.rules.currency}{(a.price || 0).toFixed(1)}m
               </div>
             </div>
           ))}

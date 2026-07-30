@@ -21,6 +21,7 @@ const GYM_DATA = {
       {
         competitionSlug: 'crossfit-games-2026',
         competitionName: 'CrossFit Games 2026',
+        leagueSlug: 'nobeef-crossfit-games-2026',
         coachCount: 25,
         status: 'active',
         dates: 'Jul 22 – Jul 26, 2026',
@@ -95,8 +96,8 @@ export default function GymPage() {
           <div className="space-y-3">
             {gym.leagues.map(league => (
               <Link
-                key={league.competitionSlug}
-                to={`/g/${gymSlug}/${league.competitionSlug}`}
+                key={league.leagueSlug}
+                to={`/l/${league.leagueSlug}`}
                 className="group glass-card rounded-xl p-5 border border-slate-800 hover:border-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">

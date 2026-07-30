@@ -28,7 +28,8 @@ export const useLeague = () => {
  */
 const buildLegacyLeagueConfig = () => {
   const athletes = ATHLETES_DATA;
-  const lockedTeams = LOCKED_TEAMS;
+  const storedTeams = localStorage.getItem('nobeef_legacy_league_teams');
+  const lockedTeams = storedTeams ? JSON.parse(storedTeams) : LOCKED_TEAMS;
   const events = SEED_EVENTS;
   const competitionDays = COMPETITION_DAYS;
   const draftAnalytics = DRAFT_ANALYTICS;
@@ -84,8 +85,8 @@ const buildLegacyLeagueConfig = () => {
       : null,
 
     // Passwords (from env, with defaults)
-    sitePassword: (import.meta.env.VITE_SITE_PASSWORD || 'nobeef').toLowerCase(),
-    adminPassword: (import.meta.env.VITE_ADMIN_PASSWORD || 'nobeef2026').toLowerCase(),
+    sitePassword: localStorage.getItem('nobeef_legacy_site_password') || (import.meta.env.VITE_SITE_PASSWORD || 'nobeef').toLowerCase(),
+    adminPassword: localStorage.getItem('nobeef_legacy_admin_password') || (import.meta.env.VITE_ADMIN_PASSWORD || 'nobeef2026').toLowerCase(),
   };
 };
 
@@ -118,12 +119,18 @@ export function LeagueProvider({ children }) {
 
   const loadLeague = () => {
     try {
-      // Discover active gymSlug and competitionSlug from path
+      // Discover active league from path (supports new /l/:leagueSlug and legacy /g/:gymSlug/:compSlug)
       const pathParts = window.location.pathname.split('/');
       let activeLeague = null;
 
+      const lIndex = pathParts.indexOf('l');
       const gIndex = pathParts.indexOf('g');
-      if (gIndex !== -1 && pathParts.length > gIndex + 2) {
+
+      if (lIndex !== -1 && pathParts.length > lIndex + 1) {
+        const targetId = pathParts[lIndex + 1];
+        const customLeagues = JSON.parse(localStorage.getItem('nobeef_custom_leagues') || '[]');
+        activeLeague = customLeagues.find(l => l.id === targetId);
+      } else if (gIndex !== -1 && pathParts.length > gIndex + 2) {
         const gymSlug = pathParts[gIndex + 1];
         const compSlug = pathParts[gIndex + 2];
         const targetId = `${gymSlug}_${compSlug}`;
@@ -138,6 +145,22 @@ export function LeagueProvider({ children }) {
         activeLeague = buildLegacyLeagueConfig();
       } else {
         // Hydrate dynamic parameters (totals, most picked) for custom leagues
+        if (activeLeague.leagueTiers) {
+          // Normalize if keys paid2/paid5 were used
+          if (activeLeague.leagueTiers.paid2 && !activeLeague.leagueTiers.paid_tier_1) {
+            activeLeague.leagueTiers.paid_tier_1 = activeLeague.leagueTiers.paid2;
+          }
+          if (activeLeague.leagueTiers.paid5 && !activeLeague.leagueTiers.paid_tier_2) {
+            activeLeague.leagueTiers.paid_tier_2 = activeLeague.leagueTiers.paid5;
+          }
+          // Ensure all tiers exist
+          activeLeague.leagueTiers.free = activeLeague.leagueTiers.free || { ...DEFAULT_LEAGUE_TIERS.free };
+          activeLeague.leagueTiers.paid_tier_1 = activeLeague.leagueTiers.paid_tier_1 || { ...DEFAULT_LEAGUE_TIERS.paid_tier_1 };
+          activeLeague.leagueTiers.paid_tier_2 = activeLeague.leagueTiers.paid_tier_2 || { ...DEFAULT_LEAGUE_TIERS.paid_tier_2 };
+        } else {
+          activeLeague.leagueTiers = { ...DEFAULT_LEAGUE_TIERS };
+        }
+
         const athletes = activeLeague.athletes || [];
         const lockedTeams = activeLeague.lockedTeams || [];
         
@@ -203,7 +226,49 @@ export function LeagueProvider({ children }) {
     window.dispatchEvent(new Event('nobeef_data_change'));
   };
 
-  const contextValue = league ? { ...league, updateLeagueRules } : null;
+  const updateLeagueTeams = (newTeams) => {
+    if (!league) return;
+    const updated = {
+      ...league,
+      lockedTeams: newTeams
+    };
+    if (updated.id === 'nobeef-crossfit-games-2026') {
+      localStorage.setItem('nobeef_legacy_league_teams', JSON.stringify(newTeams));
+    } else {
+      const customLeagues = JSON.parse(localStorage.getItem('nobeef_custom_leagues') || '[]');
+      const idx = customLeagues.findIndex(l => l.id === updated.id);
+      if (idx >= 0) {
+        customLeagues[idx] = updated;
+        localStorage.setItem('nobeef_custom_leagues', JSON.stringify(customLeagues));
+      }
+    }
+    setLeague(updated);
+    window.dispatchEvent(new Event('nobeef_data_change'));
+  };
+
+  const updateLeaguePasswords = (sitePw, adminPw) => {
+    if (!league) return;
+    const updated = {
+      ...league,
+      sitePassword: sitePw,
+      adminPassword: adminPw
+    };
+    if (updated.id === 'nobeef-crossfit-games-2026') {
+      localStorage.setItem('nobeef_legacy_site_password', sitePw);
+      localStorage.setItem('nobeef_legacy_admin_password', adminPw);
+    } else {
+      const customLeagues = JSON.parse(localStorage.getItem('nobeef_custom_leagues') || '[]');
+      const idx = customLeagues.findIndex(l => l.id === updated.id);
+      if (idx >= 0) {
+        customLeagues[idx] = updated;
+        localStorage.setItem('nobeef_custom_leagues', JSON.stringify(customLeagues));
+      }
+    }
+    setLeague(updated);
+    window.dispatchEvent(new Event('nobeef_data_change'));
+  };
+
+  const contextValue = league ? { ...league, updateLeagueRules, updateLeagueTeams, updateLeaguePasswords } : null;
 
   if (loading) {
     return (

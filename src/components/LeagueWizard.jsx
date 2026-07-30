@@ -39,10 +39,10 @@ export default function LeagueWizard() {
     // Step 1: Competition
     competitionId: 'crossfit-games-2026',
     
-    // Step 2: Gym/Org
+    // Step 2: League Identity
     gymName: '',
-    gymSlug: '',
     leagueName: '',
+    leagueSlug: '',
     brandColor: 'indigo', // default brand color choice
     
     // Step 3: Rules
@@ -79,9 +79,13 @@ export default function LeagueWizard() {
       const updated = { ...prev, [name]: value };
       
       // Auto-generate slugs and names where logical
-      if (name === 'gymName') {
-        updated.gymSlug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        updated.leagueName = `${value} Fantasy League`;
+      if (name === 'leagueName') {
+        updated.leagueSlug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      } else if (name === 'gymName') {
+        if (!updated.leagueName) {
+          updated.leagueName = `${value} Fantasy League`;
+          updated.leagueSlug = `${value} Fantasy League`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
       }
       return updated;
     });
@@ -129,8 +133,8 @@ export default function LeagueWizard() {
     const stepErrors = {};
     if (step === 2) {
       if (!formData.gymName.trim()) stepErrors.gymName = 'Gym name is required';
-      if (!formData.gymSlug.trim()) stepErrors.gymSlug = 'Gym slug path is required';
       if (!formData.leagueName.trim()) stepErrors.leagueName = 'League title is required';
+      if (!formData.leagueSlug.trim()) stepErrors.leagueSlug = 'League URL slug is required';
     }
     if (step === 6) {
       if (!formData.organizers.trim()) stepErrors.organizers = 'Organizer details are required';
@@ -160,14 +164,14 @@ export default function LeagueWizard() {
     const activeComp = COMPETITIONS.find(c => c.id === formData.competitionId);
 
     const newLeague = {
-      id: `${formData.gymSlug}_${formData.competitionId}`,
-      gymId: formData.gymSlug,
-      gymSlug: formData.gymSlug,
+      id: formData.leagueSlug,
+      gymId: formData.gymName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       gymName: formData.gymName,
       competitionId: formData.competitionId,
       competitionSlug: formData.competitionId,
       competitionName: activeComp ? activeComp.name : 'Custom Competition',
       leagueName: formData.leagueName,
+      leagueSlug: formData.leagueSlug,
       tagline: 'Custom Edition',
       organizers: formData.organizers,
       lockDeadline: new Date(formData.lockDeadline).toLocaleDateString('en-US', {
@@ -196,8 +200,8 @@ export default function LeagueWizard() {
 
       leagueTiers: {
         free: formData.tiers.free,
-        paid2: formData.tiers.paid2,
-        paid5: formData.tiers.paid5
+        paid_tier_1: formData.tiers.paid2,
+        paid_tier_2: formData.tiers.paid5
       },
 
       // Copying default pools from selected seedData model
@@ -221,7 +225,7 @@ export default function LeagueWizard() {
       localStorage.setItem('nobeef_custom_leagues', JSON.stringify(existingLeagues));
 
       // Redirect user directly to the new league path
-      navigate(`/g/${formData.gymSlug}/${formData.competitionId}`);
+      navigate(`/l/${formData.leagueSlug}`);
     } catch (err) {
       console.error('Error saving custom league:', err);
     }
@@ -240,7 +244,7 @@ export default function LeagueWizard() {
             <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">Step {step} of 7</span>
             <h1 className="font-display text-xl font-extrabold text-white uppercase tracking-wider mt-0.5">
               {step === 1 && 'Select Competition'}
-              {step === 2 && 'Gym Details'}
+              {step === 2 && 'League Identity'}
               {step === 3 && 'Roster & Salary'}
               {step === 4 && 'RX+ Power Cards'}
               {step === 5 && 'League Tiers'}
@@ -295,11 +299,11 @@ export default function LeagueWizard() {
             </div>
           )}
 
-          {/* STEP 2: Gym Details */}
+          {/* STEP 2: League Identity */}
           {step === 2 && (
             <div className="space-y-4">
               <p className="text-xs text-slate-400">
-                Give your local league an identity. The URL path is auto-generated based on the gym name you enter.
+                Give your local league an identity. The URL path is auto-generated based on the league name you enter.
               </p>
               
               <div className="space-y-3">
@@ -317,22 +321,6 @@ export default function LeagueWizard() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">URL Path Slug</label>
-                  <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3 text-sm">
-                    <span className="text-slate-500 font-mono select-none">nobeef.app/g/</span>
-                    <input
-                      type="text"
-                      name="gymSlug"
-                      value={formData.gymSlug}
-                      onChange={handleTextChange}
-                      placeholder="crossfit-colchester"
-                      className="w-full bg-transparent border-none py-2.5 text-sm text-white focus:outline-none focus:ring-0 font-mono"
-                    />
-                  </div>
-                  {errors.gymSlug && <p className="text-rose-400 text-[10px] mt-1 font-bold">{errors.gymSlug}</p>}
-                </div>
-
-                <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">League Title</label>
                   <input
                     type="text"
@@ -343,6 +331,22 @@ export default function LeagueWizard() {
                     className={`w-full bg-slate-950 border ${errors.leagueName ? 'border-rose-500' : 'border-slate-800 focus:border-indigo-500'} rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none transition`}
                   />
                   {errors.leagueName && <p className="text-rose-400 text-[10px] mt-1 font-bold">{errors.leagueName}</p>}
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">League URL Path Slug</label>
+                  <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3 text-sm">
+                    <span className="text-slate-500 font-mono select-none">nobeef.app/l/</span>
+                    <input
+                      type="text"
+                      name="leagueSlug"
+                      value={formData.leagueSlug}
+                      onChange={handleTextChange}
+                      placeholder="crossfit-colchester-games"
+                      className="w-full bg-transparent border-none py-2.5 text-sm text-white focus:outline-none focus:ring-0 font-mono"
+                    />
+                  </div>
+                  {errors.leagueSlug && <p className="text-rose-400 text-[10px] mt-1 font-bold">{errors.leagueSlug}</p>}
                 </div>
 
                 <div>
@@ -856,7 +860,7 @@ export default function LeagueWizard() {
                 </div>
                 <div className="flex justify-between border-b border-slate-900 pb-2">
                   <span className="text-slate-500 uppercase font-semibold">URL Path</span>
-                  <span className="text-indigo-400 font-bold font-mono">/g/{formData.gymSlug}/{formData.competitionId}</span>
+                  <span className="text-indigo-400 font-bold font-mono">/l/{formData.leagueSlug}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-900 pb-2">
                   <span className="text-slate-500 uppercase font-semibold">Salary Limit</span>

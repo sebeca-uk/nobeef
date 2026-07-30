@@ -1,8 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { SEED_EVENTS } from './data/seedData';
 
 let db = null;
+let auth = null;
+let googleProvider = null;
 
 // Safe Firebase initialization
 try {
@@ -18,22 +21,31 @@ try {
     };
     const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     db = getFirestore(app);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
   }
 } catch (e) {
   console.warn("Firebase initialization skipped (running in local storage mode):", e);
 }
 
-export { db };
+export { db, auth, googleProvider };
 
 // Helper to get active league namespace prefix
 const getLeaguePrefix = () => {
-  // If we are in /nobeef/g/:gymSlug/:compSlug, parse from URL
+  // If we are in /nobeef/l/:leagueSlug or /nobeef/g/:gymSlug/:compSlug, parse from URL
   const pathParts = window.location.pathname.split('/');
-  // On GitHub Pages, path starts with /nobeef/ so 'g' will be at index 2
+  
+  const lIndex = pathParts.indexOf('l');
+  if (lIndex !== -1 && pathParts.length > lIndex + 1) {
+    return pathParts[lIndex + 1];
+  }
+
+  // Legacy fallback
   const gIndex = pathParts.indexOf('g');
   if (gIndex !== -1 && pathParts.length > gIndex + 2) {
     return `${pathParts[gIndex + 1]}_${pathParts[gIndex + 2]}`;
   }
+  
   return 'nobeef_crossfit-games-2026';
 };
 
